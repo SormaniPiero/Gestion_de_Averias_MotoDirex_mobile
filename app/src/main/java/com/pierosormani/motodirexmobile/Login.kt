@@ -19,7 +19,7 @@ class Login : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-
+//Prueba para git
         val texto = "Bienvenido"
 
         val duracion = Toast.LENGTH_SHORT
