@@ -47,6 +47,15 @@
     <string name="estado_btn_actualizar">Actualizar estado</string>
     <string name="estado_confirmado">Estado actualizado correctamente</string>
 
+    <!-- Diálogos de confirmación -->
+    <string name="dialogo_aceptar_titulo">Aceptar avería</string>
+    <string name="dialogo_aceptar_mensaje">¿Confirmas que aceptas esta avería? Se registrará la fecha y hora actual como fecha de aceptación.</string>
+    <string name="dialogo_aceptar_boton">Sí, aceptar</string>
+
+    <string name="dialogo_finalizar_titulo">Finalizar avería</string>
+    <string name="dialogo_finalizar_mensaje">¿Confirmas que has terminado el trabajo? Esta acción no se puede deshacer.</string>
+    <string name="dialogo_finalizar_boton">Sí, finalizar</string>
+
     <!-- Mensajes generales -->
     <string name="accion_completada">Acción realizada correctamente</string>
     <string name="volver">Volver</string>

@@ -57,4 +57,11 @@
         app:argType="integer"
         android:defaultValue="-1" />
 
+    <!-- Pantalla 5: Perfil del técnico -->
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.adriangm.motodirex.gestionaverias.ui.main.PerfilFragment"
+        android:label="Mi Perfil"
+        tools:layout="@layout/fragment_perfil" />
+
 </navigation>

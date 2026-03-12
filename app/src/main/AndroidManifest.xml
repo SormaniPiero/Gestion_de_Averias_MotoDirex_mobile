@@ -9,15 +9,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GestionAveriasMovil">
 
-        <!-- LoginActivity: pantalla de entrada -->
+        <!-- SplashActivity: pantalla de entrada -->
         <activity
-            android:name=".ui.login.LoginActivity"
-            android:exported="true">
+            android:name=".ui.login.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.GestionAveriasMovil">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- LoginActivity -->
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="false" />
 
         <!-- MainActivity: contenedor principal -->
         <activity

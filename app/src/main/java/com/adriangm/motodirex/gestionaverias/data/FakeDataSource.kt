@@ -22,10 +22,13 @@ object FakeDataSource {
 
     val usuarioActivo = Usuario(
         codigoUsuario = 1,
-        email = "tecnico@motodirex.com",
-        password = "1234",
-        activo = true,
-        codigoRolFK = 2       // 2 = Técnico
+        email         = "tecnico@motodirex.com",
+        password      = "1234",
+        activo        = true,
+        codigoRolFK   = 2,
+        nombre        = "Adrián",
+        apellidos     = "Gimenez Muñoz",
+        telefono      = "+34 612 345 678"
     )
 
     val usuarioInactivo = Usuario(

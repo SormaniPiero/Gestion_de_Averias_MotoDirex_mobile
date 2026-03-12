@@ -15,5 +15,8 @@ data class Usuario(
     val email: String,
     val password: String,
     val activo: Boolean,
-    val codigoRolFK: Int
+    val codigoRolFK: Int,
+    val nombre: String = "",
+    val apellidos: String = "",
+    val telefono: String = ""
 )

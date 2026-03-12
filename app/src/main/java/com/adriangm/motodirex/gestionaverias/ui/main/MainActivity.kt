@@ -61,6 +61,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.perfilFragment -> {
+                navController.navigate(R.id.perfilFragment)
+                true
+            }
             R.id.action_logout -> {
                 cerrarSesion()
                 true

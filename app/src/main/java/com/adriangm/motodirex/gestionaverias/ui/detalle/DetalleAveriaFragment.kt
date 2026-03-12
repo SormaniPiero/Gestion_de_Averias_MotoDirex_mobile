@@ -14,6 +14,7 @@ import com.adriangm.motodirex.gestionaverias.model.EstadoAveria
 import com.adriangm.motodirex.gestionaverias.utils.DateUtils
 import com.adriangm.motodirex.gestionaverias.viewmodel.DetalleViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.adriangm.motodirex.gestionaverias.utils.DialogUtils
 
 class DetalleAveriaFragment : Fragment() {
 
@@ -44,12 +45,20 @@ class DetalleAveriaFragment : Fragment() {
     }
 
     private fun configurarBotones() {
-        // CU03 - Aceptar avería
+
+        // CU03 - Aceptar avería con confirmación
         binding.btnAceptar.setOnClickListener {
-            viewModel.aceptarAveria()
+            DialogUtils.mostrarConfirmacion(
+                context    = requireContext(),
+                titulo     = getString(R.string.dialogo_aceptar_titulo),
+                mensaje    = getString(R.string.dialogo_aceptar_mensaje),
+                textoAceptar = getString(R.string.dialogo_aceptar_boton)
+            ) {
+                viewModel.aceptarAveria()
+            }
         }
 
-        // CU04 - Registrar intervención → navegar al Fragment de intervención
+        // CU04 - Registrar intervención → navegar al Fragment
         binding.btnIntervencion.setOnClickListener {
             val bundle = Bundle().apply {
                 putInt("averiaId", arguments?.getInt("averiaId", -1) ?: -1)
@@ -57,7 +66,7 @@ class DetalleAveriaFragment : Fragment() {
             findNavController().navigate(R.id.action_detalle_to_intervencion, bundle)
         }
 
-        // CU05 - Cambiar estado → navegar al Fragment de estado
+        // CU05 - Cambiar estado → navegar al Fragment
         binding.btnCambiarEstado.setOnClickListener {
             val bundle = Bundle().apply {
                 putInt("averiaId", arguments?.getInt("averiaId", -1) ?: -1)
@@ -65,9 +74,16 @@ class DetalleAveriaFragment : Fragment() {
             findNavController().navigate(R.id.action_detalle_to_estado, bundle)
         }
 
-        // CU06 - Finalizar avería
+        // CU06 - Finalizar avería con confirmación
         binding.btnFinalizar.setOnClickListener {
-            viewModel.finalizarAveria()
+            DialogUtils.mostrarConfirmacion(
+                context      = requireContext(),
+                titulo       = getString(R.string.dialogo_finalizar_titulo),
+                mensaje      = getString(R.string.dialogo_finalizar_mensaje),
+                textoAceptar = getString(R.string.dialogo_finalizar_boton)
+            ) {
+                viewModel.finalizarAveria()
+            }
         }
     }
 

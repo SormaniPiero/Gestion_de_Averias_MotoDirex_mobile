@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.adriangm.motodirex.gestionaverias.data.FakeDataSource
+import com.adriangm.motodirex.gestionaverias.utils.SessionManager
+
 
 /**
  * ViewModel del Login.
@@ -30,16 +32,13 @@ class LoginViewModel : ViewModel() {
 
     fun login(email: String, password: String) {
 
-        // 1. Validar que los campos no estén vacíos
         if (email.isEmpty() || password.isEmpty()) {
             _loginResultado.value = ResultadoLogin.ERROR_CAMPOS_VACIOS
             return
         }
 
-        // 2. Buscar el usuario en FakeDataSource
         val usuario = FakeDataSource.login(email, password)
 
-        // 3. Evaluar el resultado
         when {
             usuario == null -> {
                 _loginResultado.value = ResultadoLogin.ERROR_CREDENCIALES
@@ -48,6 +47,8 @@ class LoginViewModel : ViewModel() {
                 _loginResultado.value = ResultadoLogin.ERROR_INACTIVO
             }
             else -> {
+                // Guardar el usuario en sesión
+                SessionManager.iniciarSesion(usuario)
                 _loginResultado.value = ResultadoLogin.EXITO
             }
         }

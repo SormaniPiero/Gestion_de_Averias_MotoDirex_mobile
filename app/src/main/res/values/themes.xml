@@ -18,5 +18,25 @@
         <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
     </style>
 
+    <!-- Estilo personalizado para los diálogos de MotoDirex -->
+    <style name="MotoDirex.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:background">#3D3D3D</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/MotoDirex.Dialog.BotonPositivo</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MotoDirex.Dialog.BotonNegativo</item>
+    </style>
+
+    <style name="MotoDirex.Dialog.BotonPositivo" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="MotoDirex.Dialog.BotonNegativo" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
     <style name="Theme.GestionAveriasMovil" parent="Base.Theme.GestionAveriasMovil" />
 </resources>
