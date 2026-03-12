@@ -17,7 +17,8 @@
         app:tabSelectedTextColor="@color/primary"
         app:tabIndicatorColor="@color/primary"
         app:tabIndicatorHeight="3dp"
-        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
+        app:tabMode="fixed"
+        app:tabGravity="fill">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -30,6 +31,32 @@
             android:text="@string/listado_tab_recibidas" />
 
     </com.google.android.material.tabs.TabLayout>
+
+    <!-- Buscador -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilBusqueda"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Buscar avería..."
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/text_secondary"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="@color/primary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etBusqueda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Línea roja decorativa bajo los tabs -->
     <View

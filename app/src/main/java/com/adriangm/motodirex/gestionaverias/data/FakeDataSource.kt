@@ -93,7 +93,6 @@ object FakeDataSource {
     val listaAverias = mutableListOf(
 
         // ── AVERÍA 1: NUEVA ──
-
         Averia(
             codigoAveria = 1001,
             descInicAveria = "El torno CNC no arranca al iniciar el turno. " +
@@ -102,12 +101,10 @@ object FakeDataSource {
             fechaAsigTecnico = LocalDateTime.now().minusHours(5),
             usuarioTecnicoFK = 1,
             maquinaria = maquina1,
-            tipoAveria = tipoElectrica,
-            // Sin fechaAcepTecnico → es NUEVA
+            tipoAveria = tipoElectrica
         ),
 
         // ── AVERÍA 2: NUEVA ──
-
         Averia(
             codigoAveria = 1002,
             descInicAveria = "La fresadora presenta vibraciones anómalas " +
@@ -116,12 +113,64 @@ object FakeDataSource {
             fechaAsigTecnico = LocalDateTime.now().minusHours(3),
             usuarioTecnicoFK = 1,
             maquinaria = maquina2,
-            tipoAveria = tipoMecanica,
-            // Sin fechaAcepTecnico → es NUEVA
+            tipoAveria = tipoMecanica
         ),
 
-        // ── AVERÍA 3: RECIBIDA (ya aceptada, sin finalizar) ──
+        // ── AVERÍA 3: NUEVA ──
+        Averia(
+            codigoAveria = 1005,
+            descInicAveria = "El robot de soldadura no responde a los comandos " +
+                    "de inicio. Panel de control sin respuesta.",
+            fechaInicioAver = LocalDateTime.now().minusHours(8),
+            fechaAsigTecnico = LocalDateTime.now().minusHours(2),
+            usuarioTecnicoFK = 1,
+            maquinaria = Maquinaria(
+                codigoMaquinaria = 105,
+                nombreMaquinaria = "Robot Soldadura Épsilon",
+                modeloMaquinaria = "ROB-S200",
+                ubicacion = "Nave B - Sector 4",
+                codigoEstadoFK = EstadoMaquinaria.FUERA_DE_SERVICIO
+            ),
+            tipoAveria = tipoElectrica
+        ),
 
+        // ── AVERÍA 4: NUEVA ──
+        Averia(
+            codigoAveria = 1006,
+            descInicAveria = "La cinta transportadora se detiene cada 10 minutos " +
+                    "de forma intermitente. Posible fallo en el variador de frecuencia.",
+            fechaInicioAver = LocalDateTime.now().minusHours(6),
+            fechaAsigTecnico = LocalDateTime.now().minusHours(1),
+            usuarioTecnicoFK = 1,
+            maquinaria = Maquinaria(
+                codigoMaquinaria = 106,
+                nombreMaquinaria = "Cinta Transportadora Zeta",
+                modeloMaquinaria = "CTZ-1500",
+                ubicacion = "Nave A - Sector 1",
+                codigoEstadoFK = EstadoMaquinaria.EN_REVISION
+            ),
+            tipoAveria = tipoMecanica
+        ),
+
+        // ── AVERÍA 5: NUEVA ──
+        Averia(
+            codigoAveria = 1007,
+            descInicAveria = "La prensa hidráulica pierde presión progresivamente " +
+                    "durante el ciclo de trabajo. Se sospecha fuga interna.",
+            fechaInicioAver = LocalDateTime.now().minusHours(4),
+            fechaAsigTecnico = LocalDateTime.now().minusMinutes(45),
+            usuarioTecnicoFK = 1,
+            maquinaria = Maquinaria(
+                codigoMaquinaria = 107,
+                nombreMaquinaria = "Prensa Hidráulica Eta",
+                modeloMaquinaria = "PHE-800T",
+                ubicacion = "Nave C - Sector 1",
+                codigoEstadoFK = EstadoMaquinaria.EN_REPARACION
+            ),
+            tipoAveria = tipoHidraulica
+        ),
+
+        // ── AVERÍA 6: RECIBIDA (aceptada, sin finalizar) ──
         Averia(
             codigoAveria = 1003,
             descInicAveria = "Pérdida de presión en el circuito hidráulico principal. " +
@@ -131,12 +180,11 @@ object FakeDataSource {
             usuarioTecnicoFK = 1,
             maquinaria = maquina3,
             tipoAveria = tipoHidraulica,
-            fechaAcepTecnico = LocalDateTime.now().minusDays(2),  // ← ya aceptada
+            fechaAcepTecnico = LocalDateTime.now().minusDays(2),
             estadoAveria = EstadoAveria.ACEPTADA
         ),
 
-        // ── AVERÍA 4: RECIBIDA (aceptada, con intervención, sin finalizar) ──
-
+        // ── AVERÍA 7: RECIBIDA (aceptada, con intervención, sin finalizar) ──
         Averia(
             codigoAveria = 1004,
             descInicAveria = "La soldadora automática detiene el proceso " +
@@ -146,10 +194,53 @@ object FakeDataSource {
             usuarioTecnicoFK = 1,
             maquinaria = maquina4,
             tipoAveria = tipoElectrica,
-            fechaAcepTecnico = LocalDateTime.now().minusDays(3),  // ← ya aceptada
+            fechaAcepTecnico = LocalDateTime.now().minusDays(3),
             procRealizadoTecnico = "Revisado el módulo de control. " +
                     "Se ha reemplazado el sensor de posición defectuoso.",
             estadoAveria = EstadoAveria.ACEPTADA
+        ),
+
+        // ── AVERÍA 8: RECIBIDA (aceptada, sin intervención) ──
+        Averia(
+            codigoAveria = 1008,
+            descInicAveria = "El horno de tratamiento térmico no alcanza " +
+                    "la temperatura objetivo. Se queda estancado en 650°C.",
+            fechaInicioAver = LocalDateTime.now().minusDays(3),
+            fechaAsigTecnico = LocalDateTime.now().minusDays(2),
+            usuarioTecnicoFK = 1,
+            maquinaria = Maquinaria(
+                codigoMaquinaria = 108,
+                nombreMaquinaria = "Horno Tratamiento Térmico Theta",
+                modeloMaquinaria = "HTT-1200",
+                ubicacion = "Nave D - Sector 2",
+                codigoEstadoFK = EstadoMaquinaria.EN_REPARACION
+            ),
+            tipoAveria = tipoElectrica,
+            fechaAcepTecnico = LocalDateTime.now().minusDays(1),
+            estadoAveria = EstadoAveria.ACEPTADA
+        ),
+
+        // ── AVERÍA 9: FINALIZADA ──
+        Averia(
+            codigoAveria = 1009,
+            descInicAveria = "El compresor de aire comprimido genera ruido " +
+                    "excesivo y vibración en la tubería principal.",
+            fechaInicioAver = LocalDateTime.now().minusDays(7),
+            fechaAsigTecnico = LocalDateTime.now().minusDays(6),
+            usuarioTecnicoFK = 1,
+            maquinaria = Maquinaria(
+                codigoMaquinaria = 109,
+                nombreMaquinaria = "Compresor Aire Iota",
+                modeloMaquinaria = "CAI-500",
+                ubicacion = "Nave A - Sector 3",
+                codigoEstadoFK = EstadoMaquinaria.OPERATIVA
+            ),
+            tipoAveria = tipoMecanica,
+            fechaAcepTecnico = LocalDateTime.now().minusDays(5),
+            procRealizadoTecnico = "Sustituidas las juntas de la tubería principal " +
+                    "y reajustados los tornillos de anclaje del compresor.",
+            fechaFinalizTecnico = LocalDateTime.now().minusDays(4),
+            estadoAveria = EstadoAveria.FINALIZADA
         )
     )
 

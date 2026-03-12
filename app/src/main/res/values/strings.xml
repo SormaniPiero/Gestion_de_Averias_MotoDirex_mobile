@@ -38,6 +38,8 @@
     <string name="intervencion_hint">Describe detalladamente la intervención realizada...</string>
     <string name="intervencion_btn_guardar">Guardar intervención</string>
     <string name="intervencion_error_vacio">La descripción es obligatoria</string>
+    <string name="intervencion_editando">Editando intervención existente</string>
+    <string name="intervencion_btn_actualizar">Actualizar intervención</string>
 
     <!-- Cambiar estado -->
     <string name="estado_titulo">Cambiar Estado de Máquina</string>

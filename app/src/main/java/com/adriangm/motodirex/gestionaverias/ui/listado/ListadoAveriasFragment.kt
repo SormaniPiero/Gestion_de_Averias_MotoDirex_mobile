@@ -1,6 +1,8 @@
 package com.adriangm.motodirex.gestionaverias.ui.listado
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,8 +38,10 @@ class ListadoAveriasFragment : Fragment() {
 
         configurarRecyclerView()
         configurarTabs()
+        configurarBuscador()
         observarViewModel()
 
+        // Restaurar la pestaña activa al volver del detalle
         viewModel.tabActivo.value?.let { tabPos ->
             binding.tabLayout.getTabAt(tabPos)?.select()
         }
@@ -45,22 +49,22 @@ class ListadoAveriasFragment : Fragment() {
 
     private fun configurarRecyclerView() {
         adapter = AveriaAdapter(emptyList()) { averia ->
-            // Al pulsar una tarjeta → navegar al detalle pasando el ID
             val bundle = Bundle().apply {
                 putInt("averiaId", averia.codigoAveria)
             }
-            findNavController().navigate(
-                R.id.action_listado_to_detalle, bundle
-            )
+            findNavController().navigate(R.id.action_listado_to_detalle, bundle)
         }
-
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
     }
 
     private fun configurarTabs() {
+        actualizarContadores()
+
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                // Limpiar buscador al cambiar de pestaña
+                binding.etBusqueda.setText("")
                 when (tab?.position) {
                     0 -> viewModel.cargarAveriasNuevas()
                     1 -> viewModel.cargarAveriasRecibidas()
@@ -71,20 +75,36 @@ class ListadoAveriasFragment : Fragment() {
         })
     }
 
+    private fun configurarBuscador() {
+        binding.etBusqueda.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.buscar(s.toString())
+            }
+        })
+    }
+
+    private fun actualizarContadores() {
+        val contadorNuevas    = viewModel.getContadorNuevas()
+        val contadorRecibidas = viewModel.getContadorRecibidas()
+        binding.tabLayout.getTabAt(0)?.text = "Nuevas ($contadorNuevas)"
+        binding.tabLayout.getTabAt(1)?.text = "Recibidas ($contadorRecibidas)"
+    }
+
     private fun observarViewModel() {
         viewModel.averias.observe(viewLifecycleOwner) { lista ->
             if (lista.isEmpty()) {
-                binding.recyclerView.visibility  = View.GONE
-                binding.tvSinAverias.visibility  = View.VISIBLE
+                binding.recyclerView.visibility = View.GONE
+                binding.tvSinAverias.visibility = View.VISIBLE
             } else {
-                binding.recyclerView.visibility  = View.VISIBLE
-                binding.tvSinAverias.visibility  = View.GONE
+                binding.recyclerView.visibility = View.VISIBLE
+                binding.tvSinAverias.visibility = View.GONE
                 adapter.actualizarLista(lista)
             }
         }
     }
 
-    // Importante: limpiar el binding cuando el Fragment se destruye
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

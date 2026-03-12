@@ -115,6 +115,34 @@
 
                 </LinearLayout>
 
+                <!-- Banner de edición (visible solo si ya existe intervención) -->
+                <LinearLayout
+                    android:id="@+id/bannerEdicion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@color/background_medium"
+                    android:padding="10dp"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/accent"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/intervencion_editando"
+                        android:textSize="13sp"
+                        android:textColor="@color/accent"
+                        android:textStyle="italic" />
+
+                </LinearLayout>
+
                 <!-- Campo descripción intervención -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilDescripcion"

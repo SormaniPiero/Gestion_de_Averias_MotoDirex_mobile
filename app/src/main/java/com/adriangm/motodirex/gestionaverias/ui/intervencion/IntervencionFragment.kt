@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.adriangm.motodirex.gestionaverias.databinding.FragmentIntervencionBinding
 import com.adriangm.motodirex.gestionaverias.viewmodel.DetalleViewModel
+import com.adriangm.motodirex.gestionaverias.R
 
 class IntervencionFragment : Fragment() {
 
@@ -39,12 +40,22 @@ class IntervencionFragment : Fragment() {
 
     private fun mostrarDatosAveria() {
         viewModel.averia.value?.let { averia ->
-            binding.tvCodigoAveria.text     = "AVE-${averia.codigoAveria}"
+            binding.tvCodigoAveria.text      = "AVE-${averia.codigoAveria}"
             binding.tvDescripcionAveria.text = averia.descInicAveria
 
-            // Si ya había una intervención previa la mostramos en el campo
+            // Si ya había una intervención previa
             if (!averia.procRealizadoTecnico.isNullOrBlank()) {
+                // Rellenar el campo con el texto existente
                 binding.etDescripcion.setText(averia.procRealizadoTecnico)
+
+                // Mostrar banner de edición
+                binding.bannerEdicion.visibility = View.VISIBLE
+
+                // Cambiar el texto del botón a "Actualizar"
+                binding.btnGuardar.text = getString(R.string.intervencion_btn_actualizar)
+            } else {
+                binding.bannerEdicion.visibility = View.GONE
+                binding.btnGuardar.text = getString(R.string.intervencion_btn_guardar)
             }
         }
     }
@@ -53,14 +64,20 @@ class IntervencionFragment : Fragment() {
         binding.btnGuardar.setOnClickListener {
             val descripcion = binding.etDescripcion.text.toString().trim()
 
-            if (descripcion.isEmpty()) {
-                binding.tvError.text       = "La descripción es obligatoria"
-                binding.tvError.visibility = View.VISIBLE
-                return@setOnClickListener
+            when {
+                descripcion.isEmpty() -> {
+                    binding.tvError.text       = "La descripción es obligatoria"
+                    binding.tvError.visibility = View.VISIBLE
+                }
+                descripcion.length < 20 -> {
+                    binding.tvError.text       = "La descripción debe tener al menos 20 caracteres (${descripcion.length}/20)"
+                    binding.tvError.visibility = View.VISIBLE
+                }
+                else -> {
+                    binding.tvError.visibility = View.GONE
+                    viewModel.registrarIntervencion(descripcion)
+                }
             }
-
-            binding.tvError.visibility = View.GONE
-            viewModel.registrarIntervencion(descripcion)
         }
     }
 

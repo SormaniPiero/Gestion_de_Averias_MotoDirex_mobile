@@ -8,37 +8,70 @@ import com.adriangm.motodirex.gestionaverias.model.Averia
 
 /**
  * ViewModel del listado de averías.
- * Gestiona qué pestaña está activa y qué averías mostrar.
+ * Gestiona pestañas, búsqueda y filtrado.
  *
  * ⚠️ TODO FASE 2: Sustituir FakeDataSource por llamadas Retrofit
  */
 
 class ListadoViewModel : ViewModel() {
 
-    // Lista de averías actualmente visible
     private val _averias = MutableLiveData<List<Averia>>()
     val averias: LiveData<List<Averia>> = _averias
 
-    // Pestaña activa: 0 = Nuevas, 1 = Recibidas
     private val _tabActivo = MutableLiveData<Int>(0)
     val tabActivo: LiveData<Int> = _tabActivo
 
+    // Guardamos el texto de búsqueda actual
+    private var textoBusqueda: String = ""
+
     init {
-        // Al crear el ViewModel cargamos las averías nuevas por defecto
         cargarAveriasNuevas()
     }
 
     fun cargarAveriasNuevas() {
         _tabActivo.value = 0
-        _averias.value = FakeDataSource.getAveriasNuevas()
+        textoBusqueda    = ""
+        aplicarFiltro(FakeDataSource.getAveriasNuevas())
     }
 
     fun cargarAveriasRecibidas() {
         _tabActivo.value = 1
-        _averias.value = FakeDataSource.getAveriasRecibidas()
+        textoBusqueda    = ""
+        aplicarFiltro(FakeDataSource.getAveriasRecibidas())
     }
 
-    fun getAveriaPorId(id: Int): Averia? {
-        return FakeDataSource.getAveriaPorId(id)
+    /**
+     * Filtra la lista actual según el texto de búsqueda.
+     * Busca en: descripción, código de avería y nombre de máquina.
+     */
+    fun buscar(texto: String) {
+        textoBusqueda = texto.trim().lowercase()
+
+        val listaBase = when (_tabActivo.value) {
+            0    -> FakeDataSource.getAveriasNuevas()
+            1    -> FakeDataSource.getAveriasRecibidas()
+            else -> FakeDataSource.getAveriasNuevas()
+        }
+
+        aplicarFiltro(listaBase)
     }
+
+    private fun aplicarFiltro(lista: List<Averia>) {
+        if (textoBusqueda.isEmpty()) {
+            _averias.value = lista
+            return
+        }
+
+        _averias.value = lista.filter { averia ->
+            averia.descInicAveria.lowercase().contains(textoBusqueda) ||
+                    averia.codigoAveria.toString().contains(textoBusqueda)    ||
+                    averia.maquinaria.nombreMaquinaria.lowercase().contains(textoBusqueda) ||
+                    averia.tipoAveria.descripcionTipo.lowercase().contains(textoBusqueda)
+        }
+    }
+
+    fun getContadorNuevas(): Int    = FakeDataSource.getAveriasNuevas().size
+    fun getContadorRecibidas(): Int = FakeDataSource.getAveriasRecibidas().size
+
+    fun getAveriaPorId(id: Int): Averia? = FakeDataSource.getAveriaPorId(id)
 }
