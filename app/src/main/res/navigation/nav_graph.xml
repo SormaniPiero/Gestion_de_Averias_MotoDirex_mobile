@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/listadoAveriasFragment">
+
+    <!-- Pantalla 1: Listado de averías (pantalla de inicio tras login) -->
+    <fragment
+        android:id="@+id/listadoAveriasFragment"
+        android:name="com.adriangm.motodirex.gestionaverias.ui.listado.ListadoAveriasFragment"
+        android:label="Mis Averías"
+        tools:layout="@layout/fragment_listado_averias">
+
+        <!-- Desde listado → detalle -->
+        <action
+            android:id="@+id/action_listado_to_detalle"
+            app:destination="@id/detalleAveriaFragment" />
+    </fragment>
+
+    <!-- Pantalla 2: Detalle de avería -->
+    <fragment
+        android:id="@+id/detalleAveriaFragment"
+        android:name="com.adriangm.motodirex.gestionaverias.ui.detalle.DetalleAveriaFragment"
+        android:label="Detalle de Avería"
+        tools:layout="@layout/fragment_detalle_averia">
+
+        <!-- Desde detalle → intervención -->
+        <action
+            android:id="@+id/action_detalle_to_intervencion"
+            app:destination="@id/intervencionFragment" />
+
+        <!-- Desde detalle → cambiar estado -->
+        <action
+            android:id="@+id/action_detalle_to_estado"
+            app:destination="@id/cambiarEstadoFragment" />
+    </fragment>
+
+    <!-- Pantalla 3: Registrar intervención -->
+    <fragment
+        android:id="@+id/intervencionFragment"
+        android:name="com.adriangm.motodirex.gestionaverias.ui.intervencion.IntervencionFragment"
+        android:label="Registrar Intervención"
+        tools:layout="@layout/fragment_intervencion" />
+
+    <!-- Pantalla 4: Cambiar estado de maquinaria -->
+    <fragment
+        android:id="@+id/cambiarEstadoFragment"
+        android:name="com.adriangm.motodirex.gestionaverias.ui.estado.CambiarEstadoFragment"
+        android:label="Cambiar Estado"
+        tools:layout="@layout/fragment_cambiar_estado" />
+
+    <!-- Argumentos para pasar el ID de avería entre pantallas -->
+    <argument
+        android:name="averiaId"
+        app:argType="integer"
+        android:defaultValue="-1" />
+
+</navigation>

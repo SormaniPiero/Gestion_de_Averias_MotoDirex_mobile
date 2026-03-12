@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">MotoDirex Averías</string>
+
+    <!-- Login -->
+    <string name="login_titulo">Iniciar Sesión</string>
+    <string name="login_subtitulo">Sistema de Gestión de Averías</string>
+    <string name="login_email">Correo electrónico</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_boton">Iniciar sesión</string>
+    <string name="login_error_campos">Por favor, rellena todos los campos</string>
+    <string name="login_error_credenciales">Credenciales incorrectas</string>
+    <string name="login_error_inactivo">Usuario inactivo. Contacta con el administrador.</string>
+
+    <!-- Listado de averías -->
+    <string name="listado_titulo">Mis Averías</string>
+    <string name="listado_tab_nuevas">Nuevas</string>
+    <string name="listado_tab_recibidas">Recibidas</string>
+    <string name="listado_sin_averias">No hay averías en esta categoría</string>
+
+    <!-- Detalle de avería -->
+    <string name="detalle_titulo">Detalle de Avería</string>
+    <string name="detalle_maquina">Máquina</string>
+    <string name="detalle_tipo">Tipo de avería</string>
+    <string name="detalle_descripcion">Descripción</string>
+    <string name="detalle_fecha_inicio">Fecha inicio</string>
+    <string name="detalle_fecha_asignacion">Fecha asignación</string>
+    <string name="detalle_fecha_aceptacion">Fecha aceptación</string>
+    <string name="detalle_fecha_finalizacion">Fecha finalización</string>
+    <string name="detalle_estado">Estado</string>
+    <string name="detalle_btn_aceptar">Aceptar avería</string>
+    <string name="detalle_btn_intervencion">Registrar intervención</string>
+    <string name="detalle_btn_estado">Cambiar estado máquina</string>
+    <string name="detalle_btn_finalizar">Finalizar avería</string>
+
+    <!-- Intervención -->
+    <string name="intervencion_titulo">Registrar Intervención</string>
+    <string name="intervencion_descripcion">Descripción del trabajo realizado *</string>
+    <string name="intervencion_hint">Describe detalladamente la intervención realizada...</string>
+    <string name="intervencion_btn_guardar">Guardar intervención</string>
+    <string name="intervencion_error_vacio">La descripción es obligatoria</string>
+
+    <!-- Cambiar estado -->
+    <string name="estado_titulo">Cambiar Estado de Máquina</string>
+    <string name="estado_selecciona">Selecciona el nuevo estado</string>
+    <string name="estado_btn_actualizar">Actualizar estado</string>
+    <string name="estado_confirmado">Estado actualizado correctamente</string>
+
+    <!-- Mensajes generales -->
+    <string name="accion_completada">Acción realizada correctamente</string>
+    <string name="volver">Volver</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+</resources>
