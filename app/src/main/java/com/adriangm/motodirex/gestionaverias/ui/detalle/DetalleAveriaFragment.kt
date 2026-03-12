@@ -33,7 +33,7 @@ class DetalleAveriaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel = ViewModelProvider(this)[DetalleViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity())[DetalleViewModel::class.java]
 
         // Recuperar el ID de la avería que nos pasó el listado
         val averiaId = arguments?.getInt("averiaId", -1) ?: -1
@@ -126,26 +126,96 @@ class DetalleAveriaFragment : Fragment() {
     private fun actualizarBotones(averia: Averia) {
         when (averia.estadoAveria) {
             EstadoAveria.ASIGNADA -> {
-                // Solo se puede aceptar
-                binding.btnAceptar.isEnabled      = true
+                // Aceptar: activo y rojo
+                binding.btnAceptar.isEnabled = true
+                binding.btnAceptar.alpha = 1f
+
+                // Intervención: desactivado visualmente
                 binding.btnIntervencion.isEnabled = false
+                binding.btnIntervencion.alpha = 0.3f
+                binding.btnIntervencion.setTextColor(
+                    requireContext().getColor(R.color.text_secondary)
+                )
+                binding.btnIntervencion.strokeColor =
+                    android.content.res.ColorStateList.valueOf(
+                        requireContext().getColor(R.color.divider)
+                    )
+
+                // Cambiar estado: desactivado visualmente
                 binding.btnCambiarEstado.isEnabled = false
-                binding.btnFinalizar.isEnabled    = false
+                binding.btnCambiarEstado.alpha = 0.3f
+                binding.btnCambiarEstado.setTextColor(
+                    requireContext().getColor(R.color.text_secondary)
+                )
+                binding.btnCambiarEstado.strokeColor =
+                    android.content.res.ColorStateList.valueOf(
+                        requireContext().getColor(R.color.divider)
+                    )
+
+                // Finalizar: desactivado visualmente
+                binding.btnFinalizar.isEnabled = false
+                binding.btnFinalizar.alpha = 0.3f
             }
+
             EstadoAveria.ACEPTADA -> {
-                // Ya aceptada: no se puede aceptar de nuevo
-                // Sí se puede intervenir, cambiar estado y finalizar
-                binding.btnAceptar.isEnabled      = false
+                // Aceptar: desactivado
+                binding.btnAceptar.isEnabled = false
+                binding.btnAceptar.alpha = 0.3f
+
+                // Intervención: activo y rojo
                 binding.btnIntervencion.isEnabled = true
+                binding.btnIntervencion.alpha = 1f
+                binding.btnIntervencion.setTextColor(
+                    requireContext().getColor(R.color.primary)
+                )
+                binding.btnIntervencion.strokeColor =
+                    android.content.res.ColorStateList.valueOf(
+                        requireContext().getColor(R.color.primary)
+                    )
+
+                // Cambiar estado: activo y rojo
                 binding.btnCambiarEstado.isEnabled = true
-                binding.btnFinalizar.isEnabled    = true
+                binding.btnCambiarEstado.alpha = 1f
+                binding.btnCambiarEstado.setTextColor(
+                    requireContext().getColor(R.color.primary)
+                )
+                binding.btnCambiarEstado.strokeColor =
+                    android.content.res.ColorStateList.valueOf(
+                        requireContext().getColor(R.color.primary)
+                    )
+
+                // Finalizar: activo y verde
+                binding.btnFinalizar.isEnabled = true
+                binding.btnFinalizar.alpha = 1f
             }
+
             EstadoAveria.FINALIZADA -> {
-                // Finalizada: todos los botones desactivados
-                binding.btnAceptar.isEnabled      = false
+                // Todos desactivados
+                binding.btnAceptar.isEnabled = false
+                binding.btnAceptar.alpha = 0.3f
+
                 binding.btnIntervencion.isEnabled = false
+                binding.btnIntervencion.alpha = 0.3f
+                binding.btnIntervencion.setTextColor(
+                    requireContext().getColor(R.color.text_secondary)
+                )
+                binding.btnIntervencion.strokeColor =
+                    android.content.res.ColorStateList.valueOf(
+                        requireContext().getColor(R.color.divider)
+                    )
+
                 binding.btnCambiarEstado.isEnabled = false
-                binding.btnFinalizar.isEnabled    = false
+                binding.btnCambiarEstado.alpha = 0.3f
+                binding.btnCambiarEstado.setTextColor(
+                    requireContext().getColor(R.color.text_secondary)
+                )
+                binding.btnCambiarEstado.strokeColor =
+                    android.content.res.ColorStateList.valueOf(
+                        requireContext().getColor(R.color.divider)
+                    )
+
+                binding.btnFinalizar.isEnabled = false
+                binding.btnFinalizar.alpha = 0.3f
             }
         }
     }

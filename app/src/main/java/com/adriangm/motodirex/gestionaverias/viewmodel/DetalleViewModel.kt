@@ -7,6 +7,7 @@ import com.adriangm.motodirex.gestionaverias.data.FakeDataSource
 import com.adriangm.motodirex.gestionaverias.model.Averia
 import com.adriangm.motodirex.gestionaverias.model.EstadoAveria
 import com.adriangm.motodirex.gestionaverias.utils.DateUtils
+import com.adriangm.motodirex.gestionaverias.model.EstadoMaquinaria
 
 /**
  * ViewModel del detalle de avería.
@@ -60,6 +61,19 @@ class DetalleViewModel : ViewModel() {
 
         _averia.value = av
         _mensaje.value = "Intervención registrada correctamente"
+    }
+
+    /**
+     * CU05 - Cambiar estado de maquinaria
+     * Actualiza el estado de la máquina asociada a la avería
+     */
+    fun cambiarEstadoMaquinaria(nuevoEstado: EstadoMaquinaria) {
+        val av = _averia.value ?: return
+
+        av.maquinaria.codigoEstadoFK = nuevoEstado
+
+        _averia.value = av
+        _mensaje.value = "Estado de máquina actualizado correctamente"
     }
 
     /**
