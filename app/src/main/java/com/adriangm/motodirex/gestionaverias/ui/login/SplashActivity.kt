@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.adriangm.motodirex.gestionaverias.databinding.ActivitySplashBinding
+import android.view.animation.AnimationUtils
 
 /**
  * Pantalla de presentación de MotoDirex.
@@ -24,14 +25,19 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Ocultar la ActionBar en el Splash
         supportActionBar?.hide()
 
-        // Esperar 2.5 segundos y navegar al Login
+        // Animación de fade in en el contenido
+        val fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in)
+        fadeIn.duration = 1000
+        binding.root.startAnimation(fadeIn)
+
         Handler(Looper.getMainLooper()).postDelayed({
             val intent = Intent(this, LoginActivity::class.java)
+            // Animación de transición al Login
             startActivity(intent)
-            finish() // Cerramos el Splash para que no pueda volver atrás
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            finish()
         }, 2500)
     }
 }

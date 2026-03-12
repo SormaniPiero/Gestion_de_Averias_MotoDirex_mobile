@@ -50,9 +50,9 @@ class LoginActivity : AppCompatActivity() {
         viewModel.loginResultado.observe(this) { resultado ->
             when (resultado) {
                 LoginViewModel.ResultadoLogin.EXITO -> {
-                    // Login correcto → ir a MainActivity
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                     finish()
                 }
                 LoginViewModel.ResultadoLogin.ERROR_CREDENCIALES -> {
