@@ -25,13 +25,22 @@ class DetalleViewModel : ViewModel() {
     private val _mensaje = MutableLiveData<String?>()
     val mensaje: LiveData<String?> = _mensaje
 
+    private val _estadoMaquinaConfirmado = MutableLiveData<Boolean>(false)
+    val estadoMaquinaConfirmado: LiveData<Boolean> = _estadoMaquinaConfirmado
+
+    fun confirmarEstadoMaquina(confirmado: Boolean) {
+        _estadoMaquinaConfirmado.value = confirmado
+    }
+
     /**
      * Carga la avería por su ID desde FakeDataSource
      */
     fun cargarAveria(id: Int) {
-        val encontrada = FakeDataSource.getAveriaPorId(id)
-        if (encontrada != null) {
-            _averia.value = encontrada!!
+        if (_averia.value?.codigoAveria != id) {
+            _estadoMaquinaConfirmado.value = false
+            FakeDataSource.getAveriaPorId(id)?.let { encontrada ->
+                _averia.value = encontrada
+            }
         }
     }
 
@@ -71,6 +80,7 @@ class DetalleViewModel : ViewModel() {
         val av = _averia.value ?: return
 
         av.maquinaria.codigoEstadoFK = nuevoEstado
+        _estadoMaquinaConfirmado.value = true
 
         _averia.value = av
         _mensaje.value = "Estado de máquina actualizado correctamente"
@@ -85,6 +95,11 @@ class DetalleViewModel : ViewModel() {
 
         if (av.procRealizadoTecnico.isNullOrBlank()) {
             _mensaje.value = "Debes registrar una intervención antes de finalizar"
+            return
+        }
+
+        if (_estadoMaquinaConfirmado.value != true) {
+            _mensaje.value = "Debes confirmar el estado de la máquina en 'Cambiar Estado Máquina'"
             return
         }
 

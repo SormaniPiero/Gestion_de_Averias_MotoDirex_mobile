@@ -51,36 +51,36 @@ object FakeDataSource {
     // MÁQUINAS SIMULADAS
     // ─────────────────────────────────────────
 
-    private val maquina1 = Maquinaria(
+    val maquina1 = Maquinaria(
         codigoMaquinaria = 101,
         nombreMaquinaria = "Torno CNC Alpha",
         modeloMaquinaria = "CNC-3200X",
-        ubicacion = "Nave A - Sector 2",
-        codigoEstadoFK = EstadoMaquinaria.EN_REPARACION
+        ubicacion        = "Nave A - Sector 2",
+        codigoEstadoFK   = EstadoMaquinaria.MOTO_AVERIADA
     )
 
-    private val maquina2 = Maquinaria(
+    val maquina2 = Maquinaria(
         codigoMaquinaria = 102,
-        nombreMaquinaria = "Fresadora Industrial Beta",
-        modeloMaquinaria = "FRES-800",
-        ubicacion = "Nave B - Sector 1",
-        codigoEstadoFK = EstadoMaquinaria.FUERA_DE_SERVICIO
+        nombreMaquinaria = "Fresadora Beta",
+        modeloMaquinaria = "FRS-1500",
+        ubicacion        = "Nave A - Sector 3",
+        codigoEstadoFK   = EstadoMaquinaria.MOTO_AVERIADA
     )
 
-    private val maquina3 = Maquinaria(
+    val maquina3 = Maquinaria(
         codigoMaquinaria = 103,
-        nombreMaquinaria = "Compresor Hidráulico Delta",
-        modeloMaquinaria = "HD-2200",
-        ubicacion = "Nave A - Sector 5",
-        codigoEstadoFK = EstadoMaquinaria.EN_REVISION
+        nombreMaquinaria = "Prensa Hidráulica Gamma",
+        modeloMaquinaria = "PHG-500T",
+        ubicacion        = "Nave B - Sector 1",
+        codigoEstadoFK   = EstadoMaquinaria.MOTO_PARADA
     )
 
-    private val maquina4 = Maquinaria(
+    val maquina4 = Maquinaria(
         codigoMaquinaria = 104,
-        nombreMaquinaria = "Soldadora Automática Gamma",
-        modeloMaquinaria = "SOL-450",
-        ubicacion = "Nave C - Sector 3",
-        codigoEstadoFK = EstadoMaquinaria.EN_REPARACION
+        nombreMaquinaria = "Soldadora Automática Delta",
+        modeloMaquinaria = "SAD-200",
+        ubicacion        = "Nave B - Sector 3",
+        codigoEstadoFK   = EstadoMaquinaria.MOTO_AVERIADA
     )
 
     // ─────────────────────────────────────────
@@ -132,7 +132,7 @@ object FakeDataSource {
                 nombreMaquinaria = "Robot Soldadura Épsilon",
                 modeloMaquinaria = "ROB-S200",
                 ubicacion = "Nave B - Sector 4",
-                codigoEstadoFK = EstadoMaquinaria.FUERA_DE_SERVICIO
+                codigoEstadoFK = EstadoMaquinaria.MOTO_INUTILIZABLE
             ),
             tipoAveria = tipoElectrica
         ),
@@ -150,7 +150,7 @@ object FakeDataSource {
                 nombreMaquinaria = "Cinta Transportadora Zeta",
                 modeloMaquinaria = "CTZ-1500",
                 ubicacion = "Nave A - Sector 1",
-                codigoEstadoFK = EstadoMaquinaria.EN_REVISION
+                codigoEstadoFK = EstadoMaquinaria.MOTO_PARADA
             ),
             tipoAveria = tipoMecanica
         ),
@@ -168,7 +168,7 @@ object FakeDataSource {
                 nombreMaquinaria = "Prensa Hidráulica Eta",
                 modeloMaquinaria = "PHE-800T",
                 ubicacion = "Nave C - Sector 1",
-                codigoEstadoFK = EstadoMaquinaria.EN_REPARACION
+                codigoEstadoFK = EstadoMaquinaria.MOTO_AVERIADA
             ),
             tipoAveria = tipoHidraulica
         ),
@@ -216,7 +216,7 @@ object FakeDataSource {
                 nombreMaquinaria = "Horno Tratamiento Térmico Theta",
                 modeloMaquinaria = "HTT-1200",
                 ubicacion = "Nave D - Sector 2",
-                codigoEstadoFK = EstadoMaquinaria.EN_REPARACION
+                codigoEstadoFK = EstadoMaquinaria.MOTO_AVERIADA
             ),
             tipoAveria = tipoElectrica,
             fechaAcepTecnico = LocalDateTime.now().minusDays(1),
@@ -236,7 +236,7 @@ object FakeDataSource {
                 nombreMaquinaria = "Compresor Aire Iota",
                 modeloMaquinaria = "CAI-500",
                 ubicacion = "Nave A - Sector 3",
-                codigoEstadoFK = EstadoMaquinaria.OPERATIVA
+                codigoEstadoFK = EstadoMaquinaria.MOTO_OPERATIVO
             ),
             tipoAveria = tipoMecanica,
             fechaAcepTecnico = LocalDateTime.now().minusDays(5),

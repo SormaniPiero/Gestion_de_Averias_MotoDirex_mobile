@@ -36,7 +36,6 @@ class DetalleAveriaFragment : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[DetalleViewModel::class.java]
 
-        // Recuperar el ID de la avería que nos pasó el listado
         val averiaId = arguments?.getInt("averiaId", -1) ?: -1
         viewModel.cargarAveria(averiaId)
 
@@ -46,19 +45,17 @@ class DetalleAveriaFragment : Fragment() {
 
     private fun configurarBotones() {
 
-        // CU03 - Aceptar avería con confirmación
         binding.btnAceptar.setOnClickListener {
             DialogUtils.mostrarConfirmacion(
-                context    = requireContext(),
-                titulo     = getString(R.string.dialogo_aceptar_titulo),
-                mensaje    = getString(R.string.dialogo_aceptar_mensaje),
+                context      = requireContext(),
+                titulo       = getString(R.string.dialogo_aceptar_titulo),
+                mensaje      = getString(R.string.dialogo_aceptar_mensaje),
                 textoAceptar = getString(R.string.dialogo_aceptar_boton)
             ) {
                 viewModel.aceptarAveria()
             }
         }
 
-        // CU04 - Registrar intervención → navegar al Fragment
         binding.btnIntervencion.setOnClickListener {
             val bundle = Bundle().apply {
                 putInt("averiaId", arguments?.getInt("averiaId", -1) ?: -1)
@@ -66,7 +63,6 @@ class DetalleAveriaFragment : Fragment() {
             findNavController().navigate(R.id.action_detalle_to_intervencion, bundle)
         }
 
-        // CU05 - Cambiar estado → navegar al Fragment
         binding.btnCambiarEstado.setOnClickListener {
             val bundle = Bundle().apply {
                 putInt("averiaId", arguments?.getInt("averiaId", -1) ?: -1)
@@ -74,12 +70,47 @@ class DetalleAveriaFragment : Fragment() {
             findNavController().navigate(R.id.action_detalle_to_estado, bundle)
         }
 
-        // CU06 - Finalizar avería con confirmación
         binding.btnFinalizar.setOnClickListener {
+            val av = viewModel.averia.value
+
+            if (av?.procRealizadoTecnico.isNullOrBlank()) {
+                Snackbar.make(
+                    binding.root,
+                    "Debes registrar una intervención antes de finalizar",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            if (viewModel.estadoMaquinaConfirmado.value != true) {
+                Snackbar.make(
+                    binding.root,
+                    "Debes confirmar el estado de la máquina en 'Cambiar Estado Máquina'",
+                    Snackbar.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
+            val resumen = """
+                |📋 AVE-${av?.codigoAveria}
+                |
+                |🔧 Tipo: ${av?.tipoAveria?.descripcionTipo}
+                |📍 Ubicación: ${av?.maquinaria?.ubicacion}
+                |⚙️ Estado máquina: ${av?.maquinaria?.codigoEstadoFK?.descripcion}
+                |
+                |📝 Descripción:
+                |${av?.descInicAveria}
+                |
+                |📅 Inicio: ${DateUtils.formatear(av?.fechaInicioAver)}
+                |📅 Asignación: ${DateUtils.formatear(av?.fechaAsigTecnico)}
+                |📅 Aceptación: ${DateUtils.formatear(av?.fechaAcepTecnico)}
+                |📅 Finalización: (ahora)
+            """.trimMargin()
+
             DialogUtils.mostrarConfirmacion(
                 context      = requireContext(),
                 titulo       = getString(R.string.dialogo_finalizar_titulo),
-                mensaje      = getString(R.string.dialogo_finalizar_mensaje),
+                mensaje      = "¿Confirmas que has terminado el trabajo? Esta acción no se puede deshacer.\n\n$resumen",
                 textoAceptar = getString(R.string.dialogo_finalizar_boton)
             ) {
                 viewModel.finalizarAveria()
@@ -102,31 +133,33 @@ class DetalleAveriaFragment : Fragment() {
     }
 
     private fun mostrarDatos(averia: Averia) {
-        binding.tvCodigo.text          = "AVE-${averia.codigoAveria}"
-        binding.tvEstadoBadge.text     = averia.estadoAveria.name
-        binding.tvTipoAveria.text      = averia.tipoAveria.descripcionTipo
-        binding.tvDescripcion.text     = averia.descInicAveria
-        binding.tvNombreMaquina.text   = averia.maquinaria.nombreMaquinaria
-        binding.tvModeloMaquina.text   = averia.maquinaria.modeloMaquinaria
-        binding.tvUbicacion.text       = averia.maquinaria.ubicacion
-        binding.tvFechaInicio.text     = DateUtils.formatear(averia.fechaInicioAver)
-        binding.tvFechaAsignacion.text = DateUtils.formatear(averia.fechaAsigTecnico)
-        binding.tvFechaAceptacion.text = DateUtils.formatear(averia.fechaAcepTecnico)
+        binding.tvCodigo.text            = "AVE-${averia.codigoAveria}"
+        binding.tvEstadoBadge.text       = averia.estadoAveria.name
+        binding.tvTipoAveria.text        = averia.tipoAveria.descripcionTipo
+        binding.tvDescripcion.text       = averia.descInicAveria
+        binding.tvNombreMaquina.text     = averia.maquinaria.nombreMaquinaria
+        binding.tvModeloMaquina.text     = averia.maquinaria.modeloMaquinaria
+        binding.tvUbicacion.text         = averia.maquinaria.ubicacion
+        binding.tvFechaInicio.text       = DateUtils.formatear(averia.fechaInicioAver)
+        binding.tvFechaAsignacion.text   = DateUtils.formatear(averia.fechaAsigTecnico)
+        binding.tvFechaAceptacion.text   = DateUtils.formatear(averia.fechaAcepTecnico)
         binding.tvFechaFinalizacion.text = DateUtils.formatear(averia.fechaFinalizTecnico)
 
-        // Color del badge de estado
+        // Estado de la máquina
+        binding.tvEstadoMaquinaDetalle.text = averia.maquinaria.codigoEstadoFK.descripcion
+        binding.tvEstadoMaquinaDetalle.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(
+                requireContext().getColor(R.color.text_secondary)
+            )
+
         val colorEstado = when (averia.estadoAveria) {
-            EstadoAveria.ASIGNADA   ->
-                requireContext().getColor(R.color.estado_asignada)
-            EstadoAveria.ACEPTADA   ->
-                requireContext().getColor(R.color.estado_aceptada)
-            EstadoAveria.FINALIZADA ->
-                requireContext().getColor(R.color.estado_finalizada)
+            EstadoAveria.ASIGNADA   -> requireContext().getColor(R.color.estado_asignada)
+            EstadoAveria.ACEPTADA   -> requireContext().getColor(R.color.estado_aceptada)
+            EstadoAveria.FINALIZADA -> requireContext().getColor(R.color.estado_finalizada)
         }
         binding.tvEstadoBadge.backgroundTintList =
             android.content.res.ColorStateList.valueOf(colorEstado)
 
-        // Mostrar tarjeta de intervención solo si existe
         if (!averia.procRealizadoTecnico.isNullOrBlank()) {
             binding.cardIntervencion.visibility = View.VISIBLE
             binding.tvIntervencion.text = averia.procRealizadoTecnico
@@ -135,103 +168,66 @@ class DetalleAveriaFragment : Fragment() {
         }
     }
 
-    /**
-     * Activa o desactiva los botones según el estado actual de la avería.
-     * Sigue exactamente las reglas del documento de Casos de Uso.
-     */
     private fun actualizarBotones(averia: Averia) {
         when (averia.estadoAveria) {
             EstadoAveria.ASIGNADA -> {
-                // Aceptar: activo y rojo
                 binding.btnAceptar.isEnabled = true
-                binding.btnAceptar.alpha = 1f
+                binding.btnAceptar.alpha     = 1f
 
-                // Intervención: desactivado visualmente
                 binding.btnIntervencion.isEnabled = false
-                binding.btnIntervencion.alpha = 0.3f
-                binding.btnIntervencion.setTextColor(
-                    requireContext().getColor(R.color.text_secondary)
-                )
-                binding.btnIntervencion.strokeColor =
-                    android.content.res.ColorStateList.valueOf(
-                        requireContext().getColor(R.color.divider)
-                    )
+                binding.btnIntervencion.alpha     = 0.3f
+                binding.btnIntervencion.setTextColor(requireContext().getColor(R.color.text_secondary))
+                binding.btnIntervencion.strokeColor = android.content.res.ColorStateList.valueOf(
+                    requireContext().getColor(R.color.divider))
 
-                // Cambiar estado: desactivado visualmente
                 binding.btnCambiarEstado.isEnabled = false
-                binding.btnCambiarEstado.alpha = 0.3f
-                binding.btnCambiarEstado.setTextColor(
-                    requireContext().getColor(R.color.text_secondary)
-                )
-                binding.btnCambiarEstado.strokeColor =
-                    android.content.res.ColorStateList.valueOf(
-                        requireContext().getColor(R.color.divider)
-                    )
+                binding.btnCambiarEstado.alpha     = 0.3f
+                binding.btnCambiarEstado.setTextColor(requireContext().getColor(R.color.text_secondary))
+                binding.btnCambiarEstado.strokeColor = android.content.res.ColorStateList.valueOf(
+                    requireContext().getColor(R.color.divider))
 
-                // Finalizar: desactivado visualmente
                 binding.btnFinalizar.isEnabled = false
-                binding.btnFinalizar.alpha = 0.3f
+                binding.btnFinalizar.alpha     = 0.3f
             }
 
             EstadoAveria.ACEPTADA -> {
-                // Aceptar: desactivado
                 binding.btnAceptar.isEnabled = false
-                binding.btnAceptar.alpha = 0.3f
+                binding.btnAceptar.alpha     = 0.3f
 
-                // Intervención: activo y rojo
                 binding.btnIntervencion.isEnabled = true
-                binding.btnIntervencion.alpha = 1f
-                binding.btnIntervencion.setTextColor(
-                    requireContext().getColor(R.color.primary)
-                )
-                binding.btnIntervencion.strokeColor =
-                    android.content.res.ColorStateList.valueOf(
-                        requireContext().getColor(R.color.primary)
-                    )
+                binding.btnIntervencion.alpha     = 1f
+                binding.btnIntervencion.setTextColor(requireContext().getColor(R.color.primary))
+                binding.btnIntervencion.strokeColor = android.content.res.ColorStateList.valueOf(
+                    requireContext().getColor(R.color.primary))
 
-                // Cambiar estado: activo y rojo
                 binding.btnCambiarEstado.isEnabled = true
-                binding.btnCambiarEstado.alpha = 1f
-                binding.btnCambiarEstado.setTextColor(
-                    requireContext().getColor(R.color.primary)
-                )
-                binding.btnCambiarEstado.strokeColor =
-                    android.content.res.ColorStateList.valueOf(
-                        requireContext().getColor(R.color.primary)
-                    )
+                binding.btnCambiarEstado.alpha     = 1f
+                binding.btnCambiarEstado.setTextColor(requireContext().getColor(R.color.primary))
+                binding.btnCambiarEstado.strokeColor = android.content.res.ColorStateList.valueOf(
+                    requireContext().getColor(R.color.primary))
 
-                // Finalizar: activo y verde
                 binding.btnFinalizar.isEnabled = true
-                binding.btnFinalizar.alpha = 1f
+                binding.btnFinalizar.alpha     = 1f
             }
 
             EstadoAveria.FINALIZADA -> {
-                // Todos desactivados
                 binding.btnAceptar.isEnabled = false
-                binding.btnAceptar.alpha = 0.3f
+                binding.btnAceptar.alpha     = 0.3f
 
                 binding.btnIntervencion.isEnabled = false
-                binding.btnIntervencion.alpha = 0.3f
-                binding.btnIntervencion.setTextColor(
-                    requireContext().getColor(R.color.text_secondary)
-                )
-                binding.btnIntervencion.strokeColor =
-                    android.content.res.ColorStateList.valueOf(
-                        requireContext().getColor(R.color.divider)
-                    )
+                binding.btnIntervencion.alpha     = 0.3f
+                binding.btnIntervencion.setTextColor(requireContext().getColor(R.color.text_secondary))
+                binding.btnIntervencion.strokeColor = android.content.res.ColorStateList.valueOf(
+                    requireContext().getColor(R.color.divider))
 
                 binding.btnCambiarEstado.isEnabled = false
-                binding.btnCambiarEstado.alpha = 0.3f
-                binding.btnCambiarEstado.setTextColor(
-                    requireContext().getColor(R.color.text_secondary)
-                )
-                binding.btnCambiarEstado.strokeColor =
-                    android.content.res.ColorStateList.valueOf(
-                        requireContext().getColor(R.color.divider)
-                    )
+                binding.btnCambiarEstado.alpha     = 0.3f
+                binding.btnCambiarEstado.setTextColor(requireContext().getColor(R.color.text_secondary))
+                binding.btnCambiarEstado.strokeColor = android.content.res.ColorStateList.valueOf(
+                    requireContext().getColor(R.color.divider))
 
                 binding.btnFinalizar.isEnabled = false
-                binding.btnFinalizar.alpha = 0.3f
+                binding.btnFinalizar.alpha     = 0.3f
             }
         }
     }

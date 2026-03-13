@@ -60,7 +60,6 @@
                     android:layout_marginBottom="4dp"
                     android:text="Nombre máquina" />
 
-                <!-- Estado actual -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -104,12 +103,13 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <!-- Título sección -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="16dp">
 
                     <View
                         android:layout_width="4dp"
@@ -127,7 +127,18 @@
 
                 </LinearLayout>
 
-                <!-- Spinner de estados -->
+                <!-- Checkbox para habilitar el selector -->
+                <CheckBox
+                    android:id="@+id/checkboxConfirmar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Quiero cambiar el estado de la máquina"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:buttonTint="@color/primary"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Spinner de estados (deshabilitado por defecto) -->
                 <Spinner
                     android:id="@+id/spinnerEstado"
                     android:layout_width="match_parent"
@@ -135,6 +146,8 @@
                     android:background="@drawable/bg_spinner"
                     android:paddingHorizontal="12dp"
                     android:popupBackground="@color/card_background"
+                    android:enabled="false"
+                    android:alpha="0.4"
                     android:layout_marginBottom="16dp" />
 
                 <!-- Botón actualizar -->
@@ -144,6 +157,8 @@
                     android:layout_height="52dp"
                     android:text="@string/estado_btn_actualizar"
                     android:textStyle="bold"
+                    android:enabled="false"
+                    android:alpha="0.4"
                     android:backgroundTint="@color/primary" />
 
             </LinearLayout>

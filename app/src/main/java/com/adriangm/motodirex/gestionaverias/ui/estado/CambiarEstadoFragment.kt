@@ -8,11 +8,11 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.adriangm.motodirex.gestionaverias.R
 import com.adriangm.motodirex.gestionaverias.databinding.FragmentCambiarEstadoBinding
 import com.adriangm.motodirex.gestionaverias.model.EstadoMaquinaria
 import com.adriangm.motodirex.gestionaverias.viewmodel.DetalleViewModel
 import com.google.android.material.snackbar.Snackbar
-import com.adriangm.motodirex.gestionaverias.R
 
 class CambiarEstadoFragment : Fragment() {
 
@@ -32,11 +32,11 @@ class CambiarEstadoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Compartimos el mismo ViewModel que el Detalle
         viewModel = ViewModelProvider(requireActivity())[DetalleViewModel::class.java]
 
         configurarSpinner()
         mostrarDatosMaquina()
+        configurarCheckbox()
         configurarBotones()
         observarViewModel()
     }
@@ -52,11 +52,19 @@ class CambiarEstadoFragment : Fragment() {
         adapter.setDropDownViewResource(R.layout.item_spinner_estado)
         binding.spinnerEstado.adapter = adapter
 
-        // Seleccionar el estado actual de la máquina
         viewModel.averia.value?.let { averia ->
             val posicion = EstadoMaquinaria.values()
                 .indexOfFirst { it == averia.maquinaria.codigoEstadoFK }
             if (posicion >= 0) binding.spinnerEstado.setSelection(posicion)
+        }
+
+        // Bloquear touch del spinner si el checkbox no está marcado
+        binding.spinnerEstado.setOnTouchListener { _, _ ->
+            if (!binding.checkboxConfirmar.isChecked) {
+                true // Consumimos el evento, el spinner no reacciona
+            } else {
+                false // Dejamos que el spinner funcione con normalidad
+            }
         }
     }
 
@@ -67,11 +75,19 @@ class CambiarEstadoFragment : Fragment() {
         }
     }
 
+    private fun configurarCheckbox() {
+        binding.checkboxConfirmar.setOnCheckedChangeListener { _, isChecked ->
+            binding.spinnerEstado.isEnabled = isChecked
+            binding.spinnerEstado.alpha     = if (isChecked) 1f else 0.4f
+            binding.btnActualizar.isEnabled = isChecked
+            binding.btnActualizar.alpha     = if (isChecked) 1f else 0.4f
+        }
+    }
+
     private fun configurarBotones() {
         binding.btnActualizar.setOnClickListener {
-            val posicion      = binding.spinnerEstado.selectedItemPosition
-            val estadoNuevo   = EstadoMaquinaria.values()[posicion]
-
+            val posicion    = binding.spinnerEstado.selectedItemPosition
+            val estadoNuevo = EstadoMaquinaria.values()[posicion]
             viewModel.cambiarEstadoMaquinaria(estadoNuevo)
         }
     }
