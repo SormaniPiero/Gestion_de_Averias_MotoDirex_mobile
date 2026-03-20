@@ -12,21 +12,14 @@ import com.adriangm.motodirex.gestionaverias.viewmodel.LoginViewModel
 
 class LoginActivity : AppCompatActivity() {
 
-    // ViewBinding: forma moderna de acceder a los elementos del XML
-    // sin usar findViewById
     private lateinit var binding: ActivityLoginBinding
-
-    // El ViewModel contiene toda la lógica, la Activity solo muestra
     private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Inflar el layout con ViewBinding
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Crear el ViewModel
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
         configurarBotones()
@@ -35,35 +28,38 @@ class LoginActivity : AppCompatActivity() {
 
     private fun configurarBotones() {
         binding.btnLogin.setOnClickListener {
-            val email    = binding.etEmail.text.toString().trim()
+            val username = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-
-            // Ocultar error anterior
             binding.tvError.visibility = View.GONE
-
-            // Pedir al ViewModel que procese el login
-            viewModel.login(email, password)
+            viewModel.login(username, password)
         }
     }
 
     private fun observarViewModel() {
+
+        viewModel.cargando.observe(this) { cargando ->
+            binding.btnLogin.isEnabled = !cargando
+            // Si tienes un ProgressBar en el layout puedes mostrarlo aquí:
+            // binding.progressBar.visibility = if (cargando) View.VISIBLE else View.GONE
+        }
+
         viewModel.loginResultado.observe(this) { resultado ->
             when (resultado) {
                 LoginViewModel.ResultadoLogin.EXITO -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, MainActivity::class.java))
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                     finish()
                 }
                 LoginViewModel.ResultadoLogin.ERROR_CREDENCIALES -> {
                     mostrarError(getString(R.string.login_error_credenciales))
                 }
-                LoginViewModel.ResultadoLogin.ERROR_INACTIVO -> {
-                    mostrarError(getString(R.string.login_error_inactivo))
-                }
                 LoginViewModel.ResultadoLogin.ERROR_CAMPOS_VACIOS -> {
                     mostrarError(getString(R.string.login_error_campos))
                 }
+                LoginViewModel.ResultadoLogin.ERROR_RED -> {
+                    mostrarError("No se pudo conectar con el servidor. Comprueba tu conexión.")
+                }
+                null -> { }
             }
         }
     }

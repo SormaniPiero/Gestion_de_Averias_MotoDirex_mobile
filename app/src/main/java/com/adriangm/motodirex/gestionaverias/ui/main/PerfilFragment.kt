@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.adriangm.motodirex.gestionaverias.data.FakeDataSource
 import com.adriangm.motodirex.gestionaverias.databinding.FragmentPerfilBinding
 import com.adriangm.motodirex.gestionaverias.ui.login.LoginActivity
 import com.adriangm.motodirex.gestionaverias.utils.DialogUtils
@@ -27,34 +26,20 @@ class PerfilFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         mostrarDatosPerfil()
-        mostrarEstadisticas()
         configurarBotones()
     }
 
     private fun mostrarDatosPerfil() {
-        val usuario = SessionManager.usuarioActual ?: return
+        val nombre = SessionManager.getNombre(requireContext()) ?: "Técnico"
 
-        val nombreCompleto = "${usuario.nombre} ${usuario.apellidos}".trim()
-        binding.tvNombreCompleto.text = nombreCompleto
-        binding.tvEmail.text          = usuario.email
-        binding.tvTelefono.text       = usuario.telefono
-        binding.tvEstadoUsuario.text  = if (usuario.activo) "Activo" else "Inactivo"
+        binding.tvNombreCompleto.text = nombre
+        binding.tvAvatar.text = nombre.firstOrNull()?.uppercaseChar()?.toString() ?: "T"
 
-        // Inicial del nombre para el avatar
-        binding.tvAvatar.text = usuario.nombre
-            .firstOrNull()?.uppercaseChar()?.toString() ?: "T"
-    }
-
-    private fun mostrarEstadisticas() {
-        binding.tvContadorNuevas.text      =
-            FakeDataSource.getAveriasNuevas().size.toString()
-        binding.tvContadorRecibidas.text   =
-            FakeDataSource.getAveriasRecibidas().size.toString()
-        binding.tvContadorFinalizadas.text =
-            FakeDataSource.listaAverias
-                .count { it.fechaFinalizTecnico != null }.toString()
+        // Si tienes tvEmail o tvTelefono en el layout puedes ocultarlos
+        // ya que la API no devuelve esos datos en el login
+        binding.tvEmail.visibility    = View.GONE
+        binding.tvTelefono.visibility = View.GONE
     }
 
     private fun configurarBotones() {
@@ -65,7 +50,7 @@ class PerfilFragment : Fragment() {
                 mensaje      = "¿Estás seguro de que quieres cerrar sesión?",
                 textoAceptar = "Sí, salir"
             ) {
-                SessionManager.cerrarSesion()
+                SessionManager.cerrarSesion(requireContext())
                 val intent = Intent(requireActivity(), LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -9,9 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.adriangm.motodirex.gestionaverias.R
 import com.adriangm.motodirex.gestionaverias.databinding.FragmentDetalleAveriaBinding
-import com.adriangm.motodirex.gestionaverias.model.Averia
-import com.adriangm.motodirex.gestionaverias.model.EstadoAveria
-import com.adriangm.motodirex.gestionaverias.utils.DateUtils
+import com.adriangm.motodirex.gestionaverias.data.network.dto.AveriaDto
 import com.adriangm.motodirex.gestionaverias.viewmodel.DetalleViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.adriangm.motodirex.gestionaverias.utils.DialogUtils
@@ -73,15 +71,6 @@ class DetalleAveriaFragment : Fragment() {
         binding.btnFinalizar.setOnClickListener {
             val av = viewModel.averia.value
 
-            if (av?.procRealizadoTecnico.isNullOrBlank()) {
-                Snackbar.make(
-                    binding.root,
-                    "Debes registrar una intervención antes de finalizar",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
-
             if (viewModel.estadoMaquinaConfirmado.value != true) {
                 Snackbar.make(
                     binding.root,
@@ -91,26 +80,10 @@ class DetalleAveriaFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val resumen = """
-                |📋 AVE-${av?.codigoAveria}
-                |
-                |🔧 Tipo: ${av?.tipoAveria?.descripcionTipo}
-                |📍 Ubicación: ${av?.maquinaria?.ubicacion}
-                |⚙️ Estado máquina: ${av?.maquinaria?.codigoEstadoFK?.descripcion}
-                |
-                |📝 Descripción:
-                |${av?.descInicAveria}
-                |
-                |📅 Inicio: ${DateUtils.formatear(av?.fechaInicioAver)}
-                |📅 Asignación: ${DateUtils.formatear(av?.fechaAsigTecnico)}
-                |📅 Aceptación: ${DateUtils.formatear(av?.fechaAcepTecnico)}
-                |📅 Finalización: (ahora)
-            """.trimMargin()
-
             DialogUtils.mostrarConfirmacion(
                 context      = requireContext(),
                 titulo       = getString(R.string.dialogo_finalizar_titulo),
-                mensaje      = "¿Confirmas que has terminado el trabajo? Esta acción no se puede deshacer.\n\n$resumen",
+                mensaje      = "¿Confirmas que has terminado el trabajo? Esta acción no se puede deshacer.\n\nAVE-${av?.codigoAveria}\n${av?.descripcion}",
                 textoAceptar = getString(R.string.dialogo_finalizar_boton)
             ) {
                 viewModel.finalizarAveria()
@@ -132,45 +105,36 @@ class DetalleAveriaFragment : Fragment() {
         }
     }
 
-    private fun mostrarDatos(averia: Averia) {
-        binding.tvCodigo.text            = "AVE-${averia.codigoAveria}"
-        binding.tvEstadoBadge.text       = averia.estadoAveria.name
-        binding.tvTipoAveria.text        = averia.tipoAveria.descripcionTipo
-        binding.tvDescripcion.text       = averia.descInicAveria
-        binding.tvNombreMaquina.text     = averia.maquinaria.nombreMaquinaria
-        binding.tvModeloMaquina.text     = averia.maquinaria.modeloMaquinaria
-        binding.tvUbicacion.text         = averia.maquinaria.ubicacion
-        binding.tvFechaInicio.text       = DateUtils.formatear(averia.fechaInicioAver)
-        binding.tvFechaAsignacion.text   = DateUtils.formatear(averia.fechaAsigTecnico)
-        binding.tvFechaAceptacion.text   = DateUtils.formatear(averia.fechaAcepTecnico)
-        binding.tvFechaFinalizacion.text = DateUtils.formatear(averia.fechaFinalizTecnico)
+    private fun mostrarDatos(averia: AveriaDto) {
+        binding.tvCodigo.text      = "AVE-${averia.codigoAveria}"
+        binding.tvEstadoBadge.text = averia.estado
+        binding.tvDescripcion.text = averia.descripcion
 
-        // Estado de la máquina
-        binding.tvEstadoMaquinaDetalle.text = averia.maquinaria.codigoEstadoFK.descripcion
-        binding.tvEstadoMaquinaDetalle.backgroundTintList =
-            android.content.res.ColorStateList.valueOf(
-                requireContext().getColor(R.color.text_secondary)
-            )
+        // Campos que la API no devuelve — ocultamos o ponemos valor genérico
+        binding.tvTipoAveria.text      = "—"
+        binding.tvNombreMaquina.text   = "Máquina #${averia.maquinariaFK}"
+        binding.tvModeloMaquina.text   = "—"
+        binding.tvUbicacion.text       = "—"
+        binding.tvFechaInicio.text     = "—"
+        binding.tvFechaAsignacion.text = "—"
+        binding.tvFechaAceptacion.text = "—"
+        binding.tvFechaFinalizacion.text = "—"
+        binding.tvEstadoMaquinaDetalle.text = "—"
+        binding.cardIntervencion.visibility = View.GONE
 
-        val colorEstado = when (averia.estadoAveria) {
-            EstadoAveria.ASIGNADA   -> requireContext().getColor(R.color.estado_asignada)
-            EstadoAveria.ACEPTADA   -> requireContext().getColor(R.color.estado_aceptada)
-            EstadoAveria.FINALIZADA -> requireContext().getColor(R.color.estado_finalizada)
+        val colorEstado = when (averia.estado) {
+            "ASIGNADA"   -> requireContext().getColor(R.color.estado_asignada)
+            "EN_PROCESO" -> requireContext().getColor(R.color.estado_aceptada)
+            "FINALIZADA" -> requireContext().getColor(R.color.estado_finalizada)
+            else         -> requireContext().getColor(R.color.estado_asignada)
         }
         binding.tvEstadoBadge.backgroundTintList =
             android.content.res.ColorStateList.valueOf(colorEstado)
-
-        if (!averia.procRealizadoTecnico.isNullOrBlank()) {
-            binding.cardIntervencion.visibility = View.VISIBLE
-            binding.tvIntervencion.text = averia.procRealizadoTecnico
-        } else {
-            binding.cardIntervencion.visibility = View.GONE
-        }
     }
 
-    private fun actualizarBotones(averia: Averia) {
-        when (averia.estadoAveria) {
-            EstadoAveria.ASIGNADA -> {
+    private fun actualizarBotones(averia: AveriaDto) {
+        when (averia.estado) {
+            "ASIGNADA" -> {
                 binding.btnAceptar.isEnabled = true
                 binding.btnAceptar.alpha     = 1f
 
@@ -190,7 +154,7 @@ class DetalleAveriaFragment : Fragment() {
                 binding.btnFinalizar.alpha     = 0.3f
             }
 
-            EstadoAveria.ACEPTADA -> {
+            "EN_PROCESO" -> {
                 binding.btnAceptar.isEnabled = false
                 binding.btnAceptar.alpha     = 0.3f
 
@@ -210,7 +174,7 @@ class DetalleAveriaFragment : Fragment() {
                 binding.btnFinalizar.alpha     = 1f
             }
 
-            EstadoAveria.FINALIZADA -> {
+            "FINALIZADA" -> {
                 binding.btnAceptar.isEnabled = false
                 binding.btnAceptar.alpha     = 0.3f
 

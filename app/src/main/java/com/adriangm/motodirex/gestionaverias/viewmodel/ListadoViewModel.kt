@@ -1,77 +1,103 @@
 package com.adriangm.motodirex.gestionaverias.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.adriangm.motodirex.gestionaverias.data.FakeDataSource
-import com.adriangm.motodirex.gestionaverias.model.Averia
+import androidx.lifecycle.viewModelScope
+import com.adriangm.motodirex.gestionaverias.data.AveriaRepository
+import com.adriangm.motodirex.gestionaverias.data.network.dto.AveriaDto
+import com.adriangm.motodirex.gestionaverias.utils.SessionManager
+import kotlinx.coroutines.launch
 
-/**
- * ViewModel del listado de averías.
- * Gestiona pestañas, búsqueda y filtrado.
- *
- * ⚠️ TODO FASE 2: Sustituir FakeDataSource por llamadas Retrofit
- */
+class ListadoViewModel(application: Application) : AndroidViewModel(application) {
 
-class ListadoViewModel : ViewModel() {
+    private val repository = AveriaRepository()
 
-    private val _averias = MutableLiveData<List<Averia>>()
-    val averias: LiveData<List<Averia>> = _averias
+    private val _averias = MutableLiveData<List<AveriaDto>>()
+    val averias: LiveData<List<AveriaDto>> = _averias
 
     private val _tabActivo = MutableLiveData<Int>(0)
     val tabActivo: LiveData<Int> = _tabActivo
 
-    // Guardamos el texto de búsqueda actual
+    private val _cargando = MutableLiveData<Boolean>()
+    val cargando: LiveData<Boolean> = _cargando
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
+
+    private var todasLasAverias: List<AveriaDto> = emptyList()
     private var textoBusqueda: String = ""
 
     init {
-        cargarAveriasNuevas()
+        cargarAverias()
+        iniciarRefrescoAutomatico()
+    }
+
+    private fun iniciarRefrescoAutomatico() {
+        viewModelScope.launch {
+            while (true) {
+                kotlinx.coroutines.delay(10_000) // 10 segundos
+                cargarAverias()
+            }
+        }
+    }
+    fun cargarAverias() {
+        val token = SessionManager.getToken(getApplication()) ?: return
+
+        _cargando.value = true
+
+        viewModelScope.launch {
+            val resultado = repository.getAverias(token)
+            _cargando.value = false
+
+            resultado.fold(
+                onSuccess = { lista ->
+                    todasLasAverias = lista
+                    cargarAveriasNuevas()
+                },
+                onFailure = { error ->
+                    _error.value = "Error al cargar averías: ${error.message}"
+                }
+            )
+        }
     }
 
     fun cargarAveriasNuevas() {
         _tabActivo.value = 0
-        textoBusqueda    = ""
-        aplicarFiltro(FakeDataSource.getAveriasNuevas())
+        textoBusqueda = ""
+        aplicarFiltro(todasLasAverias.filter { it.estado == "ASIGNADA" })
     }
 
     fun cargarAveriasRecibidas() {
         _tabActivo.value = 1
-        textoBusqueda    = ""
-        aplicarFiltro(FakeDataSource.getAveriasRecibidas())
+        textoBusqueda = ""
+        aplicarFiltro(todasLasAverias.filter { it.estado == "EN_PROCESO" })
     }
 
-    /**
-     * Filtra la lista actual según el texto de búsqueda.
-     * Busca en: descripción, código de avería y nombre de máquina.
-     */
     fun buscar(texto: String) {
         textoBusqueda = texto.trim().lowercase()
-
         val listaBase = when (_tabActivo.value) {
-            0    -> FakeDataSource.getAveriasNuevas()
-            1    -> FakeDataSource.getAveriasRecibidas()
-            else -> FakeDataSource.getAveriasNuevas()
+            0 -> todasLasAverias.filter { it.estado == "ASIGNADA" }
+            1 -> todasLasAverias.filter { it.estado == "EN_PROCESO" }
+            else -> todasLasAverias
         }
-
         aplicarFiltro(listaBase)
     }
 
-    private fun aplicarFiltro(lista: List<Averia>) {
+    private fun aplicarFiltro(lista: List<AveriaDto>) {
         if (textoBusqueda.isEmpty()) {
             _averias.value = lista
             return
         }
-
         _averias.value = lista.filter { averia ->
-            averia.descInicAveria.lowercase().contains(textoBusqueda) ||
-                    averia.codigoAveria.toString().contains(textoBusqueda)    ||
-                    averia.maquinaria.nombreMaquinaria.lowercase().contains(textoBusqueda) ||
-                    averia.tipoAveria.descripcionTipo.lowercase().contains(textoBusqueda)
+            averia.descripcion.lowercase().contains(textoBusqueda) ||
+                    averia.codigoAveria.toString().contains(textoBusqueda)
         }
     }
 
-    fun getContadorNuevas(): Int    = FakeDataSource.getAveriasNuevas().size
-    fun getContadorRecibidas(): Int = FakeDataSource.getAveriasRecibidas().size
+    fun getContadorNuevas(): Int = todasLasAverias.count { it.estado == "ASIGNADA" }
+    fun getContadorRecibidas(): Int = todasLasAverias.count { it.estado == "EN_PROCESO" }
 
-    fun getAveriaPorId(id: Int): Averia? = FakeDataSource.getAveriaPorId(id)
+    fun errorMostrado() { _error.value = null }
 }

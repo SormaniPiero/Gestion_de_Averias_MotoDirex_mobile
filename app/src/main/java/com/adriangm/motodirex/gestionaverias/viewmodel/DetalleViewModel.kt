@@ -1,119 +1,120 @@
 package com.adriangm.motodirex.gestionaverias.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.adriangm.motodirex.gestionaverias.data.FakeDataSource
-import com.adriangm.motodirex.gestionaverias.model.Averia
-import com.adriangm.motodirex.gestionaverias.model.EstadoAveria
-import com.adriangm.motodirex.gestionaverias.utils.DateUtils
-import com.adriangm.motodirex.gestionaverias.model.EstadoMaquinaria
+import androidx.lifecycle.viewModelScope
+import com.adriangm.motodirex.gestionaverias.data.AveriaRepository
+import com.adriangm.motodirex.gestionaverias.data.network.dto.AveriaDto
+import com.adriangm.motodirex.gestionaverias.utils.SessionManager
+import kotlinx.coroutines.launch
 
-/**
- * ViewModel del detalle de avería.
- * Gestiona todas las acciones que puede realizar el técnico:
- * aceptar, registrar intervención, cambiar estado y finalizar.
- *
- * ⚠️ TODO FASE 2: Sustituir FakeDataSource por llamadas Retrofit
- */
-class DetalleViewModel : ViewModel() {
+class DetalleViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _averia = MutableLiveData<Averia>()
-    val averia: LiveData<Averia> = _averia
+    private val repository = AveriaRepository()
 
-    // Eventos de una sola vez (para mostrar mensajes Snackbar)
+    private val _averia = MutableLiveData<AveriaDto>()
+    val averia: LiveData<AveriaDto> = _averia
+
     private val _mensaje = MutableLiveData<String?>()
     val mensaje: LiveData<String?> = _mensaje
 
     private val _estadoMaquinaConfirmado = MutableLiveData<Boolean>(false)
     val estadoMaquinaConfirmado: LiveData<Boolean> = _estadoMaquinaConfirmado
 
+    private val _cargando = MutableLiveData<Boolean>()
+    val cargando: LiveData<Boolean> = _cargando
+
     fun confirmarEstadoMaquina(confirmado: Boolean) {
         _estadoMaquinaConfirmado.value = confirmado
     }
 
-    /**
-     * Carga la avería por su ID desde FakeDataSource
-     */
     fun cargarAveria(id: Int) {
-        if (_averia.value?.codigoAveria != id) {
-            _estadoMaquinaConfirmado.value = false
-            FakeDataSource.getAveriaPorId(id)?.let { encontrada ->
-                _averia.value = encontrada
-            }
+        val token = SessionManager.getToken(getApplication()) ?: return
+        if (_averia.value?.codigoAveria == id) return
+
+        _estadoMaquinaConfirmado.value = false
+        _cargando.value = true
+
+        viewModelScope.launch {
+            val resultado = repository.getAverias(token)
+            _cargando.value = false
+            resultado.fold(
+                onSuccess = { lista ->
+                    lista.find { it.codigoAveria == id }?.let { encontrada ->
+                        _averia.value = encontrada
+                    }
+
+                },
+                onFailure = { _mensaje.value = "Error al cargar la avería" }
+            )
         }
     }
 
-    /**
-     * CU03 - Aceptar avería
-     * Registra la fecha de aceptación y cambia el estado a ACEPTADA
-     */
     fun aceptarAveria() {
         val av = _averia.value ?: return
+        val token = SessionManager.getToken(getApplication()) ?: return
 
-        av.fechaAcepTecnico = DateUtils.ahora()
-        av.estadoAveria     = EstadoAveria.ACEPTADA
-
-        // Notificar el cambio
-        _averia.value = av
-        _mensaje.value = "Avería aceptada correctamente"
+        viewModelScope.launch {
+            val resultado = repository.aceptarAveria(token, av.codigoAveria)
+            resultado.fold(
+                onSuccess = {
+                    _averia.value = av.copy(estado = "EN_PROCESO")
+                    _mensaje.value = "Avería aceptada correctamente"
+                },
+                onFailure = { _mensaje.value = "Error al aceptar la avería" }
+            )
+        }
     }
 
-    /**
-     * CU04 - Registrar intervención
-     * Guarda la descripción del trabajo realizado
-     */
     fun registrarIntervencion(descripcion: String) {
         val av = _averia.value ?: return
+        val token = SessionManager.getToken(getApplication()) ?: return
 
-        av.procRealizadoTecnico = descripcion
-
-        _averia.value = av
-        _mensaje.value = "Intervención registrada correctamente"
+        viewModelScope.launch {
+            val resultado = repository.registrarIntervencion(token, av.codigoAveria, descripcion)
+            resultado.fold(
+                onSuccess = {
+                    _averia.value = av.copy()
+                    _mensaje.value = "Intervención registrada correctamente"
+                },
+                onFailure = { _mensaje.value = "Error al registrar la intervención" }
+            )
+        }
     }
 
-    /**
-     * CU05 - Cambiar estado de maquinaria
-     * Actualiza el estado de la máquina asociada a la avería
-     */
-    fun cambiarEstadoMaquinaria(nuevoEstado: EstadoMaquinaria) {
+    fun cambiarEstadoMaquinaria(nuevoEstado: String) {
         val av = _averia.value ?: return
+        val token = SessionManager.getToken(getApplication()) ?: return
 
-        av.maquinaria.codigoEstadoFK = nuevoEstado
-        _estadoMaquinaConfirmado.value = true
-
-        _averia.value = av
-        _mensaje.value = "Estado de máquina actualizado correctamente"
+        viewModelScope.launch {
+            val resultado = repository.cambiarEstado(token, av.maquinariaFK, nuevoEstado)
+            resultado.fold(
+                onSuccess = {
+                    _estadoMaquinaConfirmado.value = true
+                    _mensaje.value = "Estado de máquina actualizado correctamente"
+                },
+                onFailure = { _mensaje.value = "Error al cambiar el estado" }
+            )
+        }
     }
 
-    /**
-     * CU06 - Finalizar avería
-     * Solo se puede finalizar si existe una intervención documentada
-     */
     fun finalizarAveria() {
         val av = _averia.value ?: return
+        val token = SessionManager.getToken(getApplication()) ?: return
 
-        if (av.procRealizadoTecnico.isNullOrBlank()) {
-            _mensaje.value = "Debes registrar una intervención antes de finalizar"
-            return
+        viewModelScope.launch {
+            val resultado = repository.finalizarAveria(token, av.codigoAveria)
+            resultado.fold(
+                onSuccess = {
+                    _averia.value = av.copy(estado = "FINALIZADA")
+                    _mensaje.value = "Avería finalizada correctamente"
+                },
+                onFailure = { _mensaje.value = "Error al finalizar la avería" }
+            )
         }
-
-        if (_estadoMaquinaConfirmado.value != true) {
-            _mensaje.value = "Debes confirmar el estado de la máquina en 'Cambiar Estado Máquina'"
-            return
-        }
-
-        av.fechaFinalizTecnico = DateUtils.ahora()
-        av.estadoAveria        = EstadoAveria.FINALIZADA
-
-        _averia.value = av
-        _mensaje.value = "Avería finalizada correctamente"
     }
 
-    /**
-     * Limpia el mensaje después de mostrarlo
-     */
-    fun mensajeMostrado() {
-        _mensaje.value = null
-    }
+    fun mensajeMostrado() { _mensaje.value = null }
 }

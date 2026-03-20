@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.adriangm.motodirex.gestionaverias.R
 import com.adriangm.motodirex.gestionaverias.databinding.FragmentCambiarEstadoBinding
-import com.adriangm.motodirex.gestionaverias.model.EstadoMaquinaria
 import com.adriangm.motodirex.gestionaverias.viewmodel.DetalleViewModel
 import com.google.android.material.snackbar.Snackbar
 
@@ -20,6 +19,15 @@ class CambiarEstadoFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: DetalleViewModel
+
+    // Estados que coinciden con los valores en tu tabla 'estados' de MariaDB
+    private val estadosDisponibles = listOf(
+        "MotoOperativo",
+        "MotoAveriada",
+        "MotoObsoleta",
+        "MotoInutilizable",
+        "MotoParada"
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,36 +50,23 @@ class CambiarEstadoFragment : Fragment() {
     }
 
     private fun configurarSpinner() {
-        val estados = EstadoMaquinaria.values().map { it.descripcion }
-
         val adapter = ArrayAdapter(
             requireContext(),
             R.layout.item_spinner_estado,
-            estados
+            estadosDisponibles
         )
         adapter.setDropDownViewResource(R.layout.item_spinner_estado)
         binding.spinnerEstado.adapter = adapter
 
-        viewModel.averia.value?.let { averia ->
-            val posicion = EstadoMaquinaria.values()
-                .indexOfFirst { it == averia.maquinaria.codigoEstadoFK }
-            if (posicion >= 0) binding.spinnerEstado.setSelection(posicion)
-        }
-
-        // Bloquear touch del spinner si el checkbox no está marcado
         binding.spinnerEstado.setOnTouchListener { _, _ ->
-            if (!binding.checkboxConfirmar.isChecked) {
-                true // Consumimos el evento, el spinner no reacciona
-            } else {
-                false // Dejamos que el spinner funcione con normalidad
-            }
+            if (!binding.checkboxConfirmar.isChecked) true else false
         }
     }
 
     private fun mostrarDatosMaquina() {
         viewModel.averia.value?.let { averia ->
-            binding.tvNombreMaquina.text = averia.maquinaria.nombreMaquinaria
-            binding.tvEstadoActual.text  = averia.maquinaria.codigoEstadoFK.descripcion
+            binding.tvNombreMaquina.text = "Máquina #${averia.maquinariaFK}"
+            binding.tvEstadoActual.text  = "—"
         }
     }
 
@@ -86,9 +81,8 @@ class CambiarEstadoFragment : Fragment() {
 
     private fun configurarBotones() {
         binding.btnActualizar.setOnClickListener {
-            val posicion    = binding.spinnerEstado.selectedItemPosition
-            val estadoNuevo = EstadoMaquinaria.values()[posicion]
-            viewModel.cambiarEstadoMaquinaria(estadoNuevo)
+            val estadoSeleccionado = estadosDisponibles[binding.spinnerEstado.selectedItemPosition]
+            viewModel.cambiarEstadoMaquinaria(estadoSeleccionado)
         }
     }
 

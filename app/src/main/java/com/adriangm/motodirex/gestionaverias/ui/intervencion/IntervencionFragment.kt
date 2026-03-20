@@ -29,8 +29,6 @@ class IntervencionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Compartimos el mismo ViewModel que el Detalle
-        // así los cambios se reflejan automáticamente al volver
         viewModel = ViewModelProvider(requireActivity())[DetalleViewModel::class.java]
 
         mostrarDatosAveria()
@@ -41,22 +39,12 @@ class IntervencionFragment : Fragment() {
     private fun mostrarDatosAveria() {
         viewModel.averia.value?.let { averia ->
             binding.tvCodigoAveria.text      = "AVE-${averia.codigoAveria}"
-            binding.tvDescripcionAveria.text = averia.descInicAveria
+            binding.tvDescripcionAveria.text = averia.descripcion
 
-            // Si ya había una intervención previa
-            if (!averia.procRealizadoTecnico.isNullOrBlank()) {
-                // Rellenar el campo con el texto existente
-                binding.etDescripcion.setText(averia.procRealizadoTecnico)
-
-                // Mostrar banner de edición
-                binding.bannerEdicion.visibility = View.VISIBLE
-
-                // Cambiar el texto del botón a "Actualizar"
-                binding.btnGuardar.text = getString(R.string.intervencion_btn_actualizar)
-            } else {
-                binding.bannerEdicion.visibility = View.GONE
-                binding.btnGuardar.text = getString(R.string.intervencion_btn_guardar)
-            }
+            // La API no guarda el texto de intervención en el DTO
+            // así que siempre mostramos el formulario limpio
+            binding.bannerEdicion.visibility = View.GONE
+            binding.btnGuardar.text = getString(R.string.intervencion_btn_guardar)
         }
     }
 
@@ -84,7 +72,6 @@ class IntervencionFragment : Fragment() {
     private fun observarViewModel() {
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             if (!mensaje.isNullOrBlank()) {
-                // Volver al detalle automáticamente al guardar
                 findNavController().popBackStack()
                 viewModel.mensajeMostrado()
             }
