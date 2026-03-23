@@ -6,7 +6,7 @@ import android.content.Context
  * Gestiona la sesión del técnico logueado.
  * En Fase 2 esto se sustituirá por el token JWT de la API.
  *
- * ⚠️ TODO FASE 2: Guardar y gestionar el token JWT aquí
+ *TODO FASE 2: Guardar y gestionar el token JWT aquí
  */
 
 object SessionManager {
