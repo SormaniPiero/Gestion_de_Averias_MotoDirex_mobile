@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.adriangm.motodirex.gestionaverias.R
 import com.adriangm.motodirex.gestionaverias.databinding.ActivityLoginBinding
+import com.adriangm.motodirex.gestionaverias.ui.listado.ListadoAveriasFragment
 import com.adriangm.motodirex.gestionaverias.ui.main.MainActivity
 import com.adriangm.motodirex.gestionaverias.viewmodel.LoginViewModel
 
@@ -21,6 +22,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+
 
         configurarBotones()
         observarViewModel()

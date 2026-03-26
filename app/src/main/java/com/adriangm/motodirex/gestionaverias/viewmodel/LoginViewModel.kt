@@ -46,7 +46,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         context = getApplication(),
                         token   = response.token,
                         nombre  = response.nombre,
-                        id      = response.id
+                        id      = response.id,
+                        asignadas = response.asignadas,
+                        aceptadas = response.aceptadas,
+                        finalizadas = response.finalizadas
                     )
                     _loginResultado.value = ResultadoLogin.EXITO
                 },

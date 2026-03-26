@@ -20,6 +20,12 @@ class ListadoViewModel(application: Application) : AndroidViewModel(application)
     private val _tabActivo = MutableLiveData<Int>(0)
     val tabActivo: LiveData<Int> = _tabActivo
 
+    private val _conteoNuevas = MutableLiveData<Int>(0)
+    val conteoNuevas: LiveData<Int> = _conteoNuevas
+
+    private val _conteoRecibidas = MutableLiveData<Int>(0)
+    val conteoRecibidas: LiveData<Int> = _conteoRecibidas
+
     private val _cargando = MutableLiveData<Boolean>()
     val cargando: LiveData<Boolean> = _cargando
 
@@ -32,6 +38,7 @@ class ListadoViewModel(application: Application) : AndroidViewModel(application)
     init {
         cargarAverias()
         iniciarRefrescoAutomatico()
+
     }
 
     private fun iniciarRefrescoAutomatico() {
@@ -54,7 +61,13 @@ class ListadoViewModel(application: Application) : AndroidViewModel(application)
             resultado.fold(
                 onSuccess = { lista ->
                     todasLasAverias = lista
-                    cargarAveriasNuevas()
+                    _conteoNuevas.value = lista.count{it.estado == "ASIGNADA"}
+                    _conteoRecibidas.value = lista.count{it.estado == "EN_PROCESO"}
+                    if(_tabActivo.value == 1) {
+                        cargarAveriasRecibidas()
+                    }else{
+                        cargarAveriasNuevas()
+                    }
                 },
                 onFailure = { error ->
                     _error.value = "Error al cargar averías: ${error.message}"

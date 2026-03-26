@@ -29,15 +29,19 @@ class ListadoAveriasFragment : Fragment() {
     ): View {
         _binding = FragmentListadoAveriasBinding.inflate(inflater, container, false)
         return binding.root
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(requireActivity())[ListadoViewModel::class.java]
 
-        configurarRecyclerView()
+        actualizarContadores()
         configurarTabs()
+        configurarRecyclerView()
         configurarBuscador()
         observarViewModel()
 
@@ -62,7 +66,9 @@ class ListadoAveriasFragment : Fragment() {
         actualizarContadores()
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+
             override fun onTabSelected(tab: TabLayout.Tab?) {
+
                 // Limpiar buscador al cambiar de pestaña
                 binding.etBusqueda.setText("")
                 when (tab?.position) {
@@ -103,6 +109,9 @@ class ListadoAveriasFragment : Fragment() {
                 adapter.actualizarLista(lista)
             }
         }
+        viewModel.conteoNuevas.observe(viewLifecycleOwner) { count -> binding.tabLayout.getTabAt(0)?.text = "Nuevas ($count)"  }
+
+        viewModel.conteoRecibidas.observe(viewLifecycleOwner){count -> binding.tabLayout.getTabAt(1)?.text = "Recibidas ($count)"}
     }
 
     override fun onDestroyView() {

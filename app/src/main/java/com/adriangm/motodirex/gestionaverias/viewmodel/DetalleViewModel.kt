@@ -1,6 +1,7 @@
 package com.adriangm.motodirex.gestionaverias.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,6 +50,7 @@ class DetalleViewModel(application: Application) : AndroidViewModel(application)
                 },
                 onFailure = { _mensaje.value = "Error al cargar la avería" }
             )
+
         }
     }
 
@@ -115,6 +117,7 @@ class DetalleViewModel(application: Application) : AndroidViewModel(application)
             )
         }
     }
+
 
     fun mensajeMostrado() { _mensaje.value = null }
 }

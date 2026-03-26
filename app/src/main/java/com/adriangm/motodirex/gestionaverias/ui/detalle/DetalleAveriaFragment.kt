@@ -1,6 +1,7 @@
 package com.adriangm.motodirex.gestionaverias.ui.detalle
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +11,11 @@ import androidx.navigation.fragment.findNavController
 import com.adriangm.motodirex.gestionaverias.R
 import com.adriangm.motodirex.gestionaverias.databinding.FragmentDetalleAveriaBinding
 import com.adriangm.motodirex.gestionaverias.data.network.dto.AveriaDto
+import com.adriangm.motodirex.gestionaverias.model.TipoAveria
 import com.adriangm.motodirex.gestionaverias.viewmodel.DetalleViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.adriangm.motodirex.gestionaverias.utils.DialogUtils
+
 
 class DetalleAveriaFragment : Fragment() {
 
@@ -110,17 +113,14 @@ class DetalleAveriaFragment : Fragment() {
         binding.tvEstadoBadge.text = averia.estado
         binding.tvDescripcion.text = averia.descripcion
 
-        // Campos que la API no devuelve — ocultamos o ponemos valor genérico
-        binding.tvTipoAveria.text      = "—"
-        binding.tvNombreMaquina.text   = "Máquina #${averia.maquinariaFK}"
-        binding.tvModeloMaquina.text   = "—"
+
+        binding.tvNombreMaquina.text = averia.nombreMaquina ?: "—"
+        binding.tvTipoAveria.text = averia.tipoAveria ?: "—"
+        binding.tvModeloMaquina.text   = "—"//Revisarlo
         binding.tvUbicacion.text       = "—"
-        binding.tvFechaInicio.text     = "—"
-        binding.tvFechaAsignacion.text = "—"
-        binding.tvFechaAceptacion.text = "—"
-        binding.tvFechaFinalizacion.text = "—"
         binding.tvEstadoMaquinaDetalle.text = "—"
         binding.cardIntervencion.visibility = View.GONE
+// En tu servicio Retrofit, añade un interceptor o simplemente loguea
 
         val colorEstado = when (averia.estado) {
             "ASIGNADA"   -> requireContext().getColor(R.color.estado_asignada)

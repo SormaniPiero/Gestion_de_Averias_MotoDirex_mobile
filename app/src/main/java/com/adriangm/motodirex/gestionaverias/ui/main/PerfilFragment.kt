@@ -31,14 +31,27 @@ class PerfilFragment : Fragment() {
     }
 
     private fun mostrarDatosPerfil() {
-        val nombre = SessionManager.getNombre(requireContext()) ?: "Técnico"
+        // 1. Usamos requireContext() para asegurar que el contexto no sea nulo
+        val context = requireContext()
 
+        // 2. Recuperamos los datos (solo una vez)
+        val nombre = SessionManager.getNombre(context) ?: "Técnico"
+
+        // IMPORTANTE: Asegúrate de tener getEmail en tu SessionManager,
+        // de lo contrario usa getNombre temporalmente para probar.
+        val email = SessionManager.getNombre(context) ?: "correo@ejemplo.com"
+
+        // 3. Asignamos los datos a la interfaz
         binding.tvNombreCompleto.text = nombre
         binding.tvAvatar.text = nombre.firstOrNull()?.uppercaseChar()?.toString() ?: "T"
 
-        // Si tienes tvEmail o tvTelefono en el layout puedes ocultarlos
-        // ya que la API no devuelve esos datos en el login
-        binding.tvEmail.visibility    = View.GONE
+        // 4. CORRECCIÓN DE ERRORES:
+        // Para el email, primero asignamos el TEXTO
+        binding.tvEmail.text = email
+        // Y luego ponemos la VISIBILIDAD como un Int (View.VISIBLE)
+        binding.tvEmail.visibility = View.VISIBLE
+
+        // El teléfono se mantiene oculto
         binding.tvTelefono.visibility = View.GONE
     }
 

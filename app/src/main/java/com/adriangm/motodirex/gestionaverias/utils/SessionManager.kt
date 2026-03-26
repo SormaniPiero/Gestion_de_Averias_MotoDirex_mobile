@@ -15,12 +15,33 @@ object SessionManager {
     private const val KEY_TOKEN  = "token"
     private const val KEY_NOMBRE = "nombre"
     private const val KEY_ID     = "id"
+    private const val KEY_ASIGNADAS = "averias_asignadas"
+    private const val KEY_ACEPTADAS = "averias_aceptadas"
+    private const val KEY_FINALIZADAS = "averias_finalizadas"
 
-    fun guardarSesion(context: Context, token: String, nombre: String, id: Int) {
+    fun saveContadores(context: Context, asignadas: Int, aceptadas: Int, finalizadas: Int){
+        val prefs = context.getSharedPreferences("motodirex_prefs", Context.MODE_PRIVATE)
+        prefs.edit().apply{
+            putInt(KEY_ASIGNADAS, asignadas)
+            putInt(KEY_ACEPTADAS, aceptadas)
+            putInt(KEY_FINALIZADAS, finalizadas)
+            apply()
+        }
+    }
+
+    fun getAsignadas(context: Context) = context.getSharedPreferences("motodirex_prefs", Context.MODE_PRIVATE).getInt(KEY_ASIGNADAS, 0)
+    fun getAceptadas(context: Context) = context.getSharedPreferences("motodirex_prefs", Context.MODE_PRIVATE).getInt(KEY_ACEPTADAS, 0)
+    fun getFinalizadas(context: Context) = context.getSharedPreferences("motodirex_prefs", Context.MODE_PRIVATE).getInt(KEY_FINALIZADAS, 0)
+
+
+    fun guardarSesion(context: Context, token: String, nombre: String, id: Int, asignadas: Int, aceptadas: Int, finalizadas: Int) {
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
             .putString(KEY_TOKEN, token)
             .putString(KEY_NOMBRE, nombre)
             .putInt(KEY_ID, id)
+            .putInt(KEY_ASIGNADAS, asignadas)
+            .putInt(KEY_ACEPTADAS, aceptadas)
+            .putInt(KEY_FINALIZADAS, finalizadas)
             .apply()
     }
 
